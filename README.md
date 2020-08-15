@@ -1,7 +1,7 @@
 # 一个通过add其他adapter的超级容器，无论多么复杂的列表样式均可解耦成一个一个的adapter
 
 ## 详细示例见本项目app下的MainActivity
-### 说明：adapter的功能、方向及逻辑已经稳定，后续将稳定发版，不会有较大改动
+### 说明：adapter的功能、方向及逻辑已经明确，后续将稳定发版，不会有较大改动
 
 首先要明白adapter也是复用的，所以才有getCurrentBean()这种操作（没加在方法上的原因是为了更简单更亲和于RecyclerView的adapter）
 

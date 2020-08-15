@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!--view相关的,viewholder-->
-    <item name="tag_view_holder" type="id"/>
-    <!--复用时的setOnClickListener-->
-    <item name="tag_view_click" type="id"/>
+    <!--view相关的,viewHolder-->
+    <item name="tag_view_holder" type="id" />
     <!--当前的bean对象-->
-    <item name="tag_view_bean" type="id"/>
+    <item name="tag_view_bean" type="id" />
+    <!--当前containerAdapter-->
+    <item name="tag_view_container" type="id" />
 </resources>

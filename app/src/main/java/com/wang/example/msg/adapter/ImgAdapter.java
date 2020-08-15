@@ -1,43 +1,42 @@
 package com.wang.example.msg.adapter;
 
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.AppCompatImageView;
+import androidx.databinding.ViewDataBinding;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.wang.adapters.adapter.BaseContainerItemAdapter;
-import com.wang.adapters.listener.OnItemClickListener;
-import com.wang.example.MyApplication;
+import com.wang.container.adapter.OneContainerItemAdapter;
+import com.wang.container.holder.BaseViewHolder;
+import com.wang.container.interfaces.OnItemClickListener;
 import com.wang.example.msg.bean.ImgBean;
+import com.wang.example.utils.ToastUtils;
 
-public class ImgAdapter extends BaseContainerItemAdapter<RecyclerView.ViewHolder, ImgBean> {
+public class ImgAdapter extends OneContainerItemAdapter<ViewDataBinding, ImgBean> {
 
     public ImgAdapter() {
         setOnItemClickListener(new OnItemClickListener<ImgBean>() {
             @Override
-            protected void onItemClick(View view, int position) {
-                Toast.makeText(MyApplication.getContext(), "您点击了图片", Toast.LENGTH_SHORT).show();
+            public void onItemClick(@NonNull View view, int position) {
+                ToastUtils.toast("您点击了图片");
             }
         });
     }
 
     @Override
-    protected void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-        ImageView iv = (ImageView) holder.itemView;
-        iv.setImageResource(getCurrentBean().imgInfo.imgRes);
-    }
-
-    @Override
-    protected RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType, LayoutInflater inflater) {
+    protected BaseViewHolder<ViewDataBinding> onCreateChildViewHolder(ViewGroup parent) {
         AppCompatImageView iv = new AppCompatImageView(parent.getContext());
         iv.setLayoutParams(new RecyclerView.LayoutParams(300, 300));
         iv.setPadding(0, 80, 0, 80);
-        return new RecyclerView.ViewHolder(iv) {
-        };
+        return new BaseViewHolder<>(iv);
+    }
+
+    @Override
+    protected void onBindChildViewHolder(@NonNull BaseViewHolder<ViewDataBinding> holder, ImgBean bean) {
+        ImageView iv = (ImageView) holder.itemView;
+        iv.setImageResource(getCurrentBean().imgInfo.imgRes);
     }
 }

@@ -1,8 +1,10 @@
 package com.wang.example.msg.bean;
 
-import com.wang.adapters.bean.IContainerBean;
-import com.wang.adapters.adapter.IContainerItemAdapter;
-import com.wang.example.msg.adapter.NoSupportAdapter;
+import androidx.annotation.NonNull;
+
+import com.wang.container.adapter.IContainerItemAdapter;
+import com.wang.container.bean.IContainerBean;
+import com.wang.example.msg.adapter.UnsupportedAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,9 +21,10 @@ public class BaseMsgBean implements IContainerBean {
         data = oldBean.data;
     }
 
+    @NonNull
     @Override
-    public Class<? extends IContainerItemAdapter> getItemAdapterClass() {
-        return NoSupportAdapter.class;
+    public Class<? extends IContainerItemAdapter> getBindAdapterClass() {
+        return UnsupportedAdapter.class;
     }
 
     /**

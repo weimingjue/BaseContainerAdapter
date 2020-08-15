@@ -12,16 +12,16 @@ import com.wang.container.adapter.OneContainerItemAdapter;
 import com.wang.container.bean.ItemAdapterPositionInfo;
 import com.wang.container.holder.BaseViewHolder;
 import com.wang.container.interfaces.OnItemClickListener;
-import com.wang.example.msg.bean.TextBean;
+import com.wang.example.msg.bean.BaseMsgBean;
 import com.wang.example.utils.ToastUtils;
 
-public class TextAdapter extends OneContainerItemAdapter<ViewDataBinding, TextBean> {
-    public TextAdapter() {
-        setOnItemClickListener(new OnItemClickListener<TextBean>() {
+public class UnsupportedAdapter extends OneContainerItemAdapter<ViewDataBinding, BaseMsgBean> {
+
+    public UnsupportedAdapter() {
+        setOnItemClickListener(new OnItemClickListener<BaseMsgBean>() {
             @Override
             public void onItemClick(@NonNull View view, int position) {
-                TextBean bean = getCurrentBean();
-                ToastUtils.toast("您点击了：" + bean.textInfo.text);
+                ToastUtils.toast("您点击了新版本的新类型");
             }
         });
     }
@@ -29,15 +29,15 @@ public class TextAdapter extends OneContainerItemAdapter<ViewDataBinding, TextBe
     @Override
     protected BaseViewHolder<ViewDataBinding> onCreateChildViewHolder(ViewGroup parent) {
         AppCompatTextView tv = new AppCompatTextView(parent.getContext());
-        tv.setTextSize(20);
+        tv.setTextSize(15);
         tv.setPadding(0, 80, 0, 80);
         return new BaseViewHolder<>(tv);
     }
 
     @Override
-    protected void onBindChildViewHolder(@NonNull BaseViewHolder<ViewDataBinding> holder, TextBean bean) {
+    protected void onBindChildViewHolder(@NonNull BaseViewHolder<ViewDataBinding> holder, BaseMsgBean bean) {
         TextView tv = (TextView) holder.itemView;
-        String text = "这是文字：" + bean.textInfo.text;
+        String text = "这是新版本的消息类型";
 
         int absState = getCurrentPositionInfo().mAbsState;
         if ((absState & ItemAdapterPositionInfo.ABS_STATE_FIRST_LIST_POSITION) != 0) {

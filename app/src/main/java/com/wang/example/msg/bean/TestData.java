@@ -38,7 +38,7 @@ public class TestData {
     }
 
     private static String createText(int position) {
-        return "{\"msgType\":1,\"data\":\"{\\\"text\\\":\\\"这是第：" + position + "\\\"}\"}";
+        return "{\"msgType\":1,\"data\":\"{\\\"text\\\":\\\"" + position + "\\\"}\"}";
     }
 
     private static String createImg(int position) {

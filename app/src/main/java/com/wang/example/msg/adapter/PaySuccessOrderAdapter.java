@@ -1,45 +1,53 @@
 package com.wang.example.msg.adapter;
 
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.AppCompatTextView;
-import androidx.recyclerview.widget.RecyclerView;
+import androidx.databinding.ViewDataBinding;
 
-import com.wang.adapters.adapter.BaseContainerItemAdapter;
-import com.wang.adapters.listener.OnItemClickListener;
-import com.wang.example.MyApplication;
+import com.wang.container.adapter.OneContainerItemAdapter;
+import com.wang.container.bean.ItemAdapterPositionInfo;
+import com.wang.container.holder.BaseViewHolder;
+import com.wang.container.interfaces.OnItemClickListener;
 import com.wang.example.msg.bean.OrderBean;
+import com.wang.example.utils.ToastUtils;
 
-public class PaySuccessOrderAdapter extends BaseContainerItemAdapter<RecyclerView.ViewHolder, OrderBean> {
+public class PaySuccessOrderAdapter extends OneContainerItemAdapter<ViewDataBinding, OrderBean> {
 
     public PaySuccessOrderAdapter() {
         setOnItemClickListener(new OnItemClickListener<OrderBean>() {
             @Override
-            protected void onItemClick(View view, int position) {
+            public void onItemClick(@NonNull View view, int position) {
                 OrderBean bean = getCurrentBean();
-                Toast.makeText(MyApplication.getContext(), "您点击了支付成功订单，订单号：" + bean.orderInfo.orderNo, Toast.LENGTH_SHORT).show();
+                ToastUtils.toast("您点击了支付成功订单，订单号：" + bean.orderInfo.orderNo);
             }
         });
     }
 
     @Override
-    protected void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-        TextView tv = (TextView) holder.itemView;
-        OrderBean.OrderDataEntity orderInfo = getCurrentBean().orderInfo;
-        tv.setText("支付成功，订单号：" + orderInfo.orderNo + "，订单名称" + orderInfo.orderName + "，物流：" + orderInfo.otherOrderData.emsNo);
-    }
-
-    @Override
-    protected RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType, LayoutInflater inflater) {
+    protected BaseViewHolder<ViewDataBinding> onCreateChildViewHolder(ViewGroup parent) {
         AppCompatTextView tv = new AppCompatTextView(parent.getContext());
         tv.setTextSize(20);
         tv.setPadding(0, 80, 0, 80);
-        return new RecyclerView.ViewHolder(tv) {
-        };
+        return new BaseViewHolder<>(tv);
+    }
+
+    @Override
+    protected void onBindChildViewHolder(@NonNull BaseViewHolder<ViewDataBinding> holder, OrderBean bean) {
+        TextView tv = (TextView) holder.itemView;
+        String text = "支付成功，订单号：" + bean.orderInfo.orderNo + "，订单名称" + bean.orderInfo.orderName
+                + "，物流：" + bean.orderInfo.otherOrderData.emsNo;
+
+        int absState = getCurrentPositionInfo().mAbsState;
+        if ((absState & ItemAdapterPositionInfo.ABS_STATE_FIRST_LIST_POSITION) != 0) {
+            text += "，整个列表第一个";
+        }
+        if ((absState & ItemAdapterPositionInfo.ABS_STATE_LAST_LIST_POSITION) != 0) {
+            text += "，整个列表最后一个";
+        }
+        tv.setText(text);
     }
 }

@@ -1,7 +1,9 @@
 package com.wang.example.msg.bean;
 
+import androidx.annotation.NonNull;
+
 import com.alibaba.fastjson.JSON;
-import com.wang.adapters.adapter.IContainerItemAdapter;
+import com.wang.container.adapter.IContainerItemAdapter;
 import com.wang.example.msg.adapter.PaySuccessOrderAdapter;
 import com.wang.example.msg.adapter.WaitPayOrderAdapter;
 
@@ -23,14 +25,15 @@ public class OrderBean extends BaseMsgBean {
         }
     }
 
+    @NonNull
     @Override
-    public Class<? extends IContainerItemAdapter> getItemAdapterClass() {
+    public Class<? extends IContainerItemAdapter> getBindAdapterClass() {
         switch (orderInfo.orderType) {
             case 1:
                 return WaitPayOrderAdapter.class;
             case 2:
                 return PaySuccessOrderAdapter.class;
         }
-        return super.getItemAdapterClass();
+        return super.getBindAdapterClass();
     }
 }

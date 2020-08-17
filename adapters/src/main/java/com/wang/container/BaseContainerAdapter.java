@@ -3,7 +3,6 @@ package com.wang.container;
 import android.annotation.TargetApi;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
 
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
@@ -17,6 +16,7 @@ import com.wang.container.adapter.BaseContainerItemAdapter;
 import com.wang.container.adapter.IContainerItemAdapter;
 import com.wang.container.bean.IContainerBean;
 import com.wang.container.bean.ItemAdapterPositionInfo;
+import com.wang.container.helper.BaseListAdapterHelper;
 import com.wang.container.holder.BaseViewHolder;
 import com.wang.container.interfaces.IContainerItemClick;
 import com.wang.container.interfaces.IListAdapter;
@@ -51,8 +51,6 @@ public class BaseContainerAdapter<BEAN extends IContainerBean> extends RecyclerV
     private static final int TYPE_MINUS = TYPE_MAX - TYPE_MIN;
 
     protected final int TYPE_HEADER = -1 * TYPE_MINUS + 1, TYPE_FOOTER = -1 * TYPE_MINUS + 2;//防止和adapter重复
-
-    private FrameLayout mHeaderFl, mFooterFl;
 
     private final ItemAdapterPositionInfo mItemPositionCacheInfo = new ItemAdapterPositionInfo();
 
@@ -112,11 +110,13 @@ public class BaseContainerAdapter<BEAN extends IContainerBean> extends RecyclerV
     protected RecyclerView mRecyclerView;
     protected GridLayoutManager mLayoutManager;
 
-    @NonNull
-    private List<BEAN> mList;
-
     @Nullable
     protected IContainerItemClick<BEAN> mItemClickListener;
+
+    /**
+     * list相关代码合并
+     */
+    private final BaseListAdapterHelper<BEAN> mHelper;
 
     /**
      * 注释同下
@@ -130,17 +130,16 @@ public class BaseContainerAdapter<BEAN extends IContainerBean> extends RecyclerV
      * 如果中途更换LayoutManager请调用{@link #changedLayoutManager}
      */
     public BaseContainerAdapter(@Nullable List<BEAN> list) {
-        mList = list == null ? new ArrayList<>() : list;
+        mHelper = new BaseListAdapterHelper<>(this, list);
     }
 
     @NonNull
     @Override
     public BaseViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         switch (viewType) {
-            case TYPE_HEADER:
-                return new BaseViewHolder(mHeaderFl);
+            case TYPE_HEADER://每次create都会new一个布局，防止多次create导致崩溃
             case TYPE_FOOTER:
-                return new BaseViewHolder(mFooterFl);
+                return mHelper.onCreateHeaderFooterViewHolder(parent);
             default:
                 return mAdaptersManager.getAdapter(viewType / TYPE_MINUS).createViewHolder(parent, viewType % TYPE_MINUS);
         }
@@ -150,8 +149,11 @@ public class BaseContainerAdapter<BEAN extends IContainerBean> extends RecyclerV
     public void onBindViewHolder(@NonNull BaseViewHolder holder, int position) {
         switch (getItemViewType(position)) {
             case TYPE_HEADER:
+                mHelper.onBindHeaderFooterViewHolder(holder, mHelper.mHeaderView);
+                return;
             case TYPE_FOOTER:
-                break;//啥都不干
+                mHelper.onBindHeaderFooterViewHolder(holder, mHelper.mFooterView);
+                return;
             default:
                 ItemAdapterPositionInfo info = getItemPositionInfo(position);
                 IContainerItemAdapter itemAdapter = info.mItemAdapter;
@@ -204,7 +206,7 @@ public class BaseContainerAdapter<BEAN extends IContainerBean> extends RecyclerV
         if (getFooterView() != null) {
             count++;
         }
-        for (BEAN bean : mList) {
+        for (BEAN bean : mHelper.mList) {
             IContainerItemAdapter itemAdapter = mAdaptersManager.getAdapter(bean.getBindAdapterClass());
             //noinspection unchecked 如果出现ClassCastException，请检查你list里的bean对象和adapter的bean是否一致
             itemAdapter.setCurrentBean(bean);
@@ -228,27 +230,6 @@ public class BaseContainerAdapter<BEAN extends IContainerBean> extends RecyclerV
     }
 
     /**
-     * 初始化header、footer的基本信息
-     */
-    private void createHeaderFooterInfo(@Nullable View view) {
-        if (view != null) {
-            if (mHeaderFl == null) {
-                mHeaderFl = new FrameLayout(view.getContext());
-                mHeaderFl.setLayoutParams(new RecyclerView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-            }
-            if (mFooterFl == null) {
-                mFooterFl = new FrameLayout(view.getContext());
-                mFooterFl.setLayoutParams(new RecyclerView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-            }
-
-            //如果没有params，默认添加match、wrap
-            if (view.getLayoutParams() == null) {
-                view.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-            }
-        }
-    }
-
-    /**
      * 根据绝对position获取子adapter的相关信息
      * 并且已经做过{@link IContainerItemAdapter#setCurrentBean}{@link IContainerItemAdapter#setCurrentPositionInfo}
      *
@@ -260,8 +241,8 @@ public class BaseContainerAdapter<BEAN extends IContainerBean> extends RecyclerV
         }
         //itemAdapter的position=0时的真实位置
         int itemStartPosition = 0;
-        for (int i = 0; i < mList.size(); i++) {
-            BEAN bean = mList.get(i);
+        for (int i = 0; i < mHelper.mList.size(); i++) {
+            BEAN bean = mHelper.mList.get(i);
             IContainerItemAdapter itemAdapter = mAdaptersManager.getAdapter(bean.getBindAdapterClass());
             //noinspection unchecked 如果出现ClassCastException，请检查你list里的bean对象和adapter的bean是否一致
             itemAdapter.setCurrentBean(bean);
@@ -278,7 +259,7 @@ public class BaseContainerAdapter<BEAN extends IContainerBean> extends RecyclerV
                 if (position == 0) {
                     mItemPositionCacheInfo.mAbsState |= ItemAdapterPositionInfo.ABS_STATE_FIRST_LIST_POSITION;
                 }
-                if (position == mList.size() - 1) {
+                if (position == mHelper.mList.size() - 1) {
                     mItemPositionCacheInfo.mAbsState |= ItemAdapterPositionInfo.ABS_STATE_LAST_LIST_POSITION;
                 }
                 if ((mItemPositionCacheInfo.mAbsState & ItemAdapterPositionInfo.ABS_STATE_FIRST_LIST_POSITION) == 0 &&
@@ -411,7 +392,7 @@ public class BaseContainerAdapter<BEAN extends IContainerBean> extends RecyclerV
 
     @NonNull
     public List<BEAN> getList() {
-        return mList;
+        return mHelper.mList;
     }
 
     /**
@@ -420,31 +401,13 @@ public class BaseContainerAdapter<BEAN extends IContainerBean> extends RecyclerV
      * @param view null表示删除，view的parent为FrameLayout，默认match、wrap
      */
     public void setHeaderView(@Nullable View view) {
-        createHeaderFooterInfo(view);
-        if (view == getHeaderView()) {//相同则忽略
-            return;
-        }
-
-        //就3种情况
-        if (view == null && getHeaderView() != null) {
-            mHeaderFl.removeAllViews();
-            notifyItemRemoved(0);
-        } else if (view != null && getHeaderView() == null) {
-            mHeaderFl.addView(view);
-            notifyItemInserted(0);
-        } else {
-            mHeaderFl.removeAllViews();
-            mHeaderFl.addView(view);
-        }
+        mHelper.setHeaderView(view);
     }
 
     @Nullable
     @Override
     public View getHeaderView() {
-        if (mHeaderFl != null && mHeaderFl.getChildCount() > 0) {
-            return mHeaderFl.getChildAt(0);
-        }
-        return null;
+        return mHelper.mHeaderView;
     }
 
     /**
@@ -453,31 +416,13 @@ public class BaseContainerAdapter<BEAN extends IContainerBean> extends RecyclerV
      * @param view null表示删除，view的parent为FrameLayout，默认match、wrap
      */
     public void setFooterView(@Nullable View view) {
-        createHeaderFooterInfo(view);
-        if (view == getFooterView()) {//相同则忽略
-            return;
-        }
-
-        //就3种情况
-        if (view == null && getFooterView() != null) {
-            mFooterFl.removeAllViews();
-            notifyItemRemoved(getItemCount());//count已经减一了，所以不用减了
-        } else if (view != null && getFooterView() == null) {
-            mFooterFl.addView(view);
-            notifyItemInserted(getItemCount() - 1);//count已经加一了，所以需要减掉
-        } else {
-            mFooterFl.removeAllViews();
-            mFooterFl.addView(view);
-        }
+        mHelper.setFooterView(view);
     }
 
     @Nullable
     @Override
     public View getFooterView() {
-        if (mFooterFl != null && mFooterFl.getChildCount() > 0) {
-            return mFooterFl.getChildAt(0);
-        }
-        return null;
+        return mHelper.mFooterView;
     }
 
     /**
@@ -512,7 +457,7 @@ public class BaseContainerAdapter<BEAN extends IContainerBean> extends RecyclerV
      */
     public int getAbsPosition(IContainerBean bean, int itemAdapterPosition) {
         int position = itemAdapterPosition;
-        for (BEAN listBean : mList) {
+        for (BEAN listBean : mHelper.mList) {
             if (listBean == bean) {
                 if (getHeaderView() != null) {
                     position++;//加上header

@@ -15,6 +15,8 @@ import androidx.databinding.DataBindingUtil;
 import androidx.databinding.ViewDataBinding;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.wang.container.R;
+
 /**
  * 所有ViewHolder的基类
  */
@@ -32,12 +34,14 @@ public class BaseViewHolder<DB extends ViewDataBinding> extends RecyclerView.Vie
 
     public BaseViewHolder(@NonNull View view) {
         super(view);
-        DB binding;
-        try {
-            binding = DataBindingUtil.bind(view);
-        } catch (Exception e) {
-            Log.e(TAG, "不是基于dataBinding的view: " + e.toString());
-            binding = null;
+        DB binding = null;
+        //如果非null，则说明不支持dataBinding
+        if (view.getTag(R.id.tag_view_no_data_binding) == null) {
+            try {
+                binding = DataBindingUtil.bind(view);
+            } catch (Exception e) {
+                Log.e(TAG, "不是基于dataBinding的view: " + e.toString());
+            }
         }
         mBinding = binding;
     }

@@ -8,6 +8,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.wang.container.R;
 import com.wang.container.holder.BaseViewHolder;
 import com.wang.container.interfaces.IListAdapter;
 
@@ -32,6 +33,7 @@ public class BaseListAdapterHelper<BEAN> {
     public BaseViewHolder onCreateHeaderFooterViewHolder(@NonNull ViewGroup parent) {
         FrameLayout fl = new FrameLayout(parent.getContext());
         fl.setLayoutParams(new RecyclerView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        fl.setTag(R.id.tag_view_no_data_binding, "headerFooter");
         return new BaseViewHolder(fl);
     }
 

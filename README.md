@@ -157,7 +157,7 @@ AndroidX导入：
 
 混淆要求：
 ```
-#框架特殊要求
+# 框架特殊要求
 # 根据泛型获取res资源需要
 -keep class * extends androidx.databinding.ViewDataBinding
 ```

@@ -18,7 +18,6 @@ import com.wang.container.bean.IContainerBean;
 import com.wang.container.bean.ItemAdapterPositionInfo;
 import com.wang.container.helper.BaseListAdapterHelper;
 import com.wang.container.holder.BaseViewHolder;
-import com.wang.container.interfaces.IContainerItemClick;
 import com.wang.container.interfaces.IListAdapter;
 import com.wang.container.interfaces.OnItemClickListener;
 import com.wang.container.observer.IContainerObserver;
@@ -44,7 +43,7 @@ import java.util.List;
  * <p>
  * https://blog.csdn.net/weimingjue/article/details/106468916
  */
-public class BaseContainerAdapter<BEAN extends IContainerBean> extends RecyclerView.Adapter<BaseViewHolder> implements IListAdapter<BEAN, ViewDataBinding, IContainerItemClick<BEAN>> {
+public class BaseContainerAdapter<BEAN extends IContainerBean> extends RecyclerView.Adapter<BaseViewHolder> implements IListAdapter<BEAN, ViewDataBinding, OnItemClickListener<BEAN>> {
     protected final String TAG = getClass().getSimpleName();
 
     public static final int TYPE_MAX = 100000, TYPE_MIN = -100000;
@@ -86,22 +85,16 @@ public class BaseContainerAdapter<BEAN extends IContainerBean> extends RecyclerV
         }
 
         @Override
-        public void dispatchItemClicked(View view, int position, @NonNull IContainerBean bean, @NonNull BaseViewHolder viewHolder) {
+        public void dispatchItemClicked(View view) {
             if (mItemClickListener != null) {
-                //noinspection unchecked
-                mItemClickListener.setCurrentBean((BEAN) bean);
-                mItemClickListener.setCurrentViewHolder(viewHolder);
-                mItemClickListener.onItemClick(view, position);
+                mItemClickListener.onClick(view);
             }
         }
 
         @Override
-        public boolean dispatchItemLongClicked(View view, int position, @NonNull IContainerBean bean, @NonNull BaseViewHolder viewHolder) {
+        public boolean dispatchItemLongClicked(View view) {
             if (mItemClickListener != null) {
-                //noinspection unchecked
-                mItemClickListener.setCurrentBean((BEAN) bean);
-                mItemClickListener.setCurrentViewHolder(viewHolder);
-                return mItemClickListener.onItemLongClick(view, position);
+                return mItemClickListener.onLongClick(view);
             }
             return false;
         }
@@ -111,12 +104,14 @@ public class BaseContainerAdapter<BEAN extends IContainerBean> extends RecyclerV
     protected GridLayoutManager mLayoutManager;
 
     @Nullable
-    protected IContainerItemClick<BEAN> mItemClickListener;
+    protected OnItemClickListener<BEAN> mItemClickListener;
 
     /**
      * list相关代码合并
      */
     private final BaseListAdapterHelper<BEAN> mHelper;
+
+    private BaseViewHolder mBindTempHolder;
 
     /**
      * 注释同下
@@ -147,6 +142,7 @@ public class BaseContainerAdapter<BEAN extends IContainerBean> extends RecyclerV
 
     @Override
     public void onBindViewHolder(@NonNull BaseViewHolder holder, int position) {
+        mBindTempHolder = holder;
         switch (getItemViewType(position)) {
             case TYPE_HEADER:
                 mHelper.onBindHeaderFooterViewHolder(holder, mHelper.mHeaderView);
@@ -160,6 +156,11 @@ public class BaseContainerAdapter<BEAN extends IContainerBean> extends RecyclerV
                 itemAdapter.bindViewHolder(holder, info.mItemPosition);
                 break;
         }
+    }
+
+    @Override
+    public BaseViewHolder getBindTempViewHolder() {
+        return mBindTempHolder;
     }
 
     @NonNull
@@ -426,28 +427,21 @@ public class BaseContainerAdapter<BEAN extends IContainerBean> extends RecyclerV
     }
 
     /**
-     * 回调监听
-     */
-    public void setOnItemClickListener(@Nullable OnItemClickListener<BEAN> listener) {
-        //noinspection deprecation
-        setOnItemClickListener((IContainerItemClick<BEAN>) listener);
-    }
-
-    /**
      * 这个回调和子adapter的事件回调都会被调用（这里先调，子adapter后调）
      * <p>
      * 注意同样逻辑别写2遍
      * 如果没有收到回调请检查你的adapter有没有对{@link RecyclerView.ViewHolder#itemView}设置了点击事件
      * <p>
      * position为相对position（绝对的没啥用处），想获得绝对位置{@link #getAbsPosition}
-     *
-     * @deprecated 自定义才会用到，一般都是用上面的方法
      */
-    @SuppressWarnings("DeprecatedIsStillUsed")
-    @Deprecated
-    @Override
-    public void setOnItemClickListener(@Nullable IContainerItemClick<BEAN> listener) {
+    public void setOnItemClickListener(@Nullable OnItemClickListener<BEAN> listener) {
         mItemClickListener = listener;
+    }
+
+    @Nullable
+    @Override
+    public OnItemClickListener<BEAN> getOnItemClickListener() {
+        return mItemClickListener;
     }
 
     /**

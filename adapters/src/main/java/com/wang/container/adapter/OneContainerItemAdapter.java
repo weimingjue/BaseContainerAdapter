@@ -45,6 +45,7 @@ public abstract class OneContainerItemAdapter<DB extends ViewDataBinding, BEAN e
         BEAN bean = getCurrentBean();
         if (holder.getBinding() != null) {
             holder.getBinding().setVariable(BR.bean, bean);
+            holder.getBinding().setVariable(BR.adapter, this);
         }
 
         //noinspection unchecked
@@ -65,7 +66,7 @@ public abstract class OneContainerItemAdapter<DB extends ViewDataBinding, BEAN e
 
     @Override
     public final int getItemCount() {
-        return super.getItemCount();
+        return 1;
     }
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

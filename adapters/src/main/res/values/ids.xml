@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!--view相关的,viewHolder-->
+    <!--当前viewHolder-->
     <item name="tag_view_holder" type="id" />
-    <!--当前的bean对象-->
+    <!--当前bean-->
     <item name="tag_view_bean" type="id" />
+    <!--当前adapter-->
+    <item name="tag_view_adapter" type="id" />
     <!--当前containerAdapter-->
     <item name="tag_view_container" type="id" />
-    <!--显示告诉ViewHolder不是基于dataBinding，如：header、footer-->
+    <!--显式告诉ViewHolder不是基于dataBinding，如：header、footer-->
     <item name="tag_view_no_data_binding" type="id" />
 </resources>

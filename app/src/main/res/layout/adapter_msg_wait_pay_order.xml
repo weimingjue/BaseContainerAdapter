@@ -7,6 +7,10 @@
         <variable
             name="bean"
             type="com.wang.example.msg.bean.OrderBean" />
+
+        <variable
+            name="adapter"
+            type="com.wang.example.msg.adapter.WaitPayOrderAdapter" />
     </data>
 
     <LinearLayout
@@ -33,8 +37,9 @@
             android:text="@{`订单名称：`+bean.orderInfo.orderName}"
             tools:text="订单名称" />
 
-        <TextView
-            android:id="@+id/tv_state"
+        <Button
+            android:id="@+id/bt_state"
+            setItemViewClick="@{adapter}"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             tools:text="列表状态" />

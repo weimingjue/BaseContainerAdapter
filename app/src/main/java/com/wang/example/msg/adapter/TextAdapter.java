@@ -20,8 +20,8 @@ public class TextAdapter extends OneContainerItemAdapter<ViewDataBinding, TextBe
         setOnItemClickListener(new OnItemClickListener<TextBean>() {
             @Override
             public void onItemClick(@NonNull View view, int position) {
-                TextBean bean = getCurrentBean();
-                ToastUtils.toast("您点击了：" + bean.textInfo.text);
+                TextBean bean = getCurrentBean(view);
+                ToastUtils.toast("您点击了文字：" + bean.textInfo.text + "，绝对位置：" + getViewHolder(view).getCommonPosition());
             }
         });
     }

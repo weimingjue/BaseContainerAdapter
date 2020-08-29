@@ -18,11 +18,11 @@ public class ItemAdapterPositionInfo {
 
 
     /**
-     * list的position,子adapter的所需要的相对position
+     * list的position，大list的position
      */
     public int mListPosition;
     /**
-     * 子adapter对应的position
+     * 子adapter对应的相对position
      */
     public int mItemPosition;
     /**

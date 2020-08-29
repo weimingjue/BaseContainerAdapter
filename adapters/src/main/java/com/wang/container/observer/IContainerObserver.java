@@ -5,7 +5,6 @@ import android.view.View;
 import androidx.annotation.NonNull;
 
 import com.wang.container.bean.IContainerBean;
-import com.wang.container.holder.BaseViewHolder;
 
 /**
  * observer
@@ -48,10 +47,10 @@ public interface IContainerObserver {
     /**
      * 当条目点击时调用
      */
-    void dispatchItemClicked(View view, int position, @NonNull IContainerBean bean, @NonNull BaseViewHolder viewHolder);
+    void dispatchItemClicked(View view);
 
     /**
      * @return 无论true、false所有的回调都会依次分发，有一个返回true长按事件就返回true
      */
-    boolean dispatchItemLongClicked(View view, int position, @NonNull IContainerBean bean, @NonNull BaseViewHolder viewHolder);
+    boolean dispatchItemLongClicked(View view);
 }

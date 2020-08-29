@@ -2,43 +2,63 @@ package com.wang.container.interfaces;
 
 import android.view.View;
 
+import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
 
+import com.wang.container.BaseContainerAdapter;
+import com.wang.container.R;
 import com.wang.container.bean.IContainerBean;
+import com.wang.container.bean.ItemAdapterPositionInfo;
 import com.wang.container.holder.BaseViewHolder;
 
 /**
  * 点击,长按,header,footer的回调
  * 完美解决类似recyclerviewAdapter的setOnClickListener重复new对象的问题
  */
-public abstract class OnItemClickListener<BEAN extends IContainerBean> implements IContainerItemClick<BEAN> {
+public interface OnItemClickListener<BEAN extends IContainerBean> extends IItemClick {
 
-    private BEAN mBean;
-    private BaseViewHolder mViewHolder;
-
+    /**
+     * 返回相对的position
+     */
     @Override
-    public final void setCurrentBean(@NonNull BEAN bean) {
-        mBean = bean;
+    @CallSuper
+    default int getViewPosition(@NonNull View view) {
+        BaseViewHolder holder = getViewHolder(view);
+        int absPosition = holder.getCommonPosition();
+        ItemAdapterPositionInfo info = getContainerAdapter(view).getItemAdapterPositionInfo(absPosition);
+        return info.mItemPosition;
     }
 
-    @Override
-    public final void setCurrentViewHolder(@NonNull BaseViewHolder viewHolder) {
-        mViewHolder = viewHolder;
+    /**
+     * 获取container容器
+     */
+    @CallSuper
+    default BaseContainerAdapter getContainerAdapter(@NonNull View view) {
+        return (BaseContainerAdapter) view.getTag(R.id.tag_view_container);
     }
 
-    @NonNull
-    @Override
-    public final BEAN getCurrentBean() {
-        return mBean;
+    /**
+     * 获取当前view所保存的bean
+     */
+    @CallSuper
+    default BEAN getCurrentBean(@NonNull View view) {
+        //noinspection unchecked
+        return (BEAN) view.getTag(R.id.tag_view_bean);
     }
 
+    /**
+     * item被点击时
+     *
+     * @param relativePosition 属于该adapter相对的position
+     */
     @Override
-    public final BaseViewHolder getCurrentViewHolder() {
-        return mViewHolder;
-    }
+    void onItemClick(@NonNull View view, int relativePosition);
 
+    /**
+     * item被长按时
+     */
     @Override
-    public boolean onItemLongClick(@NonNull View view, int position) {
+    default boolean onItemLongClick(@NonNull View view, int relativePosition) {
         return false;
     }
 }

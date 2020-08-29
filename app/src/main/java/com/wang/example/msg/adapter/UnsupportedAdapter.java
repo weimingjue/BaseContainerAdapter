@@ -1,6 +1,5 @@
 package com.wang.example.msg.adapter;
 
-import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
@@ -11,19 +10,13 @@ import androidx.databinding.ViewDataBinding;
 import com.wang.container.adapter.OneContainerItemAdapter;
 import com.wang.container.bean.ItemAdapterPositionInfo;
 import com.wang.container.holder.BaseViewHolder;
-import com.wang.container.interfaces.OnItemClickListener;
 import com.wang.example.msg.bean.BaseMsgBean;
 import com.wang.example.utils.ToastUtils;
 
 public class UnsupportedAdapter extends OneContainerItemAdapter<ViewDataBinding, BaseMsgBean> {
 
     public UnsupportedAdapter() {
-        setOnItemClickListener(new OnItemClickListener<BaseMsgBean>() {
-            @Override
-            public void onItemClick(@NonNull View view, int position) {
-                ToastUtils.toast("您点击了新版本的新类型");
-            }
-        });
+        setOnItemClickListener((view, position) -> ToastUtils.toast("您点击了新版本的新类型"));
     }
 
     @Override

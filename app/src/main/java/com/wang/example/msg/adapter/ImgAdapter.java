@@ -21,7 +21,7 @@ public class ImgAdapter extends OneContainerItemAdapter<ViewDataBinding, ImgBean
         setOnItemClickListener(new OnItemClickListener<ImgBean>() {
             @Override
             public void onItemClick(@NonNull View view, int position) {
-                ToastUtils.toast("您点击了图片");
+                ToastUtils.toast("您点击了图片，绝对位置：" + getViewHolder(view).getCommonPosition());
             }
         });
     }

@@ -12,7 +12,6 @@ import com.wang.container.R;
 import com.wang.container.bean.IContainerBean;
 import com.wang.container.bean.ItemAdapterPositionInfo;
 import com.wang.container.holder.BaseViewHolder;
-import com.wang.container.interfaces.IContainerItemClick;
 import com.wang.container.interfaces.OnItemClickListener;
 import com.wang.container.observer.IContainerObserver;
 
@@ -23,11 +22,13 @@ public abstract class BaseContainerItemAdapter<BEAN extends IContainerBean> impl
 
     protected ArraySet<IContainerObserver> mObservers = new ArraySet<>();
 
-    protected MyItemClickListener mListener = new MyItemClickListener();
+    protected MyItemClickListenerWrap mListener = new MyItemClickListenerWrap();
 
     private BEAN mCurrentBean;
     private ItemAdapterPositionInfo mCurrentPositionInfo;
     private BaseContainerAdapter mContainerAdapter;
+
+    private BaseViewHolder mBindTempHolder;
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // 继承下来的基本实现,正常情况不需要再重写
@@ -48,32 +49,37 @@ public abstract class BaseContainerItemAdapter<BEAN extends IContainerBean> impl
     public final BaseViewHolder createViewHolder(@NonNull ViewGroup parent, int viewType) {
         BaseViewHolder holder = onCreateViewHolder(parent, viewType);
         holder.itemView.setTag(R.id.tag_view_holder, holder);
+        holder.itemView.setTag(R.id.tag_view_adapter, this);
         holder.itemView.setTag(R.id.tag_view_container, mContainerAdapter);
         return holder;
     }
 
     @Override
     public final void bindViewHolder(@NonNull BaseViewHolder holder, int position) {
+        mBindTempHolder = holder;
         holder.itemView.setTag(R.id.tag_view_bean, getCurrentBean());
         holder.itemView.setOnClickListener(mListener);
         holder.itemView.setOnLongClickListener(mListener);
         onBindViewHolder(holder, position);
     }
 
-    /**
-     * 不太建议使用这个，自定义的时候才会用到
-     */
-    @SuppressWarnings("DeprecatedIsStillUsed")
-    @Deprecated
     @Override
-    public void setOnItemClickListener(@Nullable IContainerItemClick<BEAN> listener) {
+    public BaseViewHolder getBindTempViewHolder() {
+        return mBindTempHolder;
+    }
+
+    public void setOnItemClickListener(@Nullable OnItemClickListener<BEAN> listener) {
         mListener.setListener(listener);
         notifyDataSetChanged();
     }
 
-    public void setOnItemClickListener(@Nullable OnItemClickListener<BEAN> listener) {
-        //noinspection deprecation
-        setOnItemClickListener((IContainerItemClick<BEAN>) listener);
+    /**
+     * @return 返回的是wrap，如果想得到自己的listener，再get一下{@link MyItemClickListenerWrap#getListener}
+     */
+    @Nullable
+    @Override
+    public MyItemClickListenerWrap getOnItemClickListener() {
+        return mListener;
     }
 
     @Override
@@ -136,85 +142,56 @@ public abstract class BaseContainerItemAdapter<BEAN extends IContainerBean> impl
     /**
      * {@link #setOnItemClickListener}{@link BaseContainerAdapter#setOnItemClickListener}这两个listener的事件分发
      */
-    protected class MyItemClickListener implements View.OnClickListener, View.OnLongClickListener {
+    protected class MyItemClickListenerWrap implements OnItemClickListener<BEAN> {
 
         /**
          * {@link #setOnItemClickListener}
          */
         @Nullable
-        private IContainerItemClick<BEAN> mListener;
+        private OnItemClickListener<BEAN> mListener;
 
         @Override
-        public void onClick(View view) {
-            int position = getViewPosition(view);
-            BEAN bean = getViewBean(view);
-            BaseViewHolder holder = getViewHolder(view);
-
+        public void onClick(@NonNull View view) {
             for (IContainerObserver observer : mObservers) {
-                observer.dispatchItemClicked(view, position, bean, holder);
+                observer.dispatchItemClicked(view);
             }
+
+            OnItemClickListener.super.onClick(view);
+        }
+
+        @Override
+        public boolean onLongClick(@NonNull View view) {
+            boolean state = false;
+            for (IContainerObserver observer : mObservers) {
+                state = state | observer.dispatchItemLongClicked(view);
+            }
+
+            state = state | OnItemClickListener.super.onLongClick(view);
+            return state;
+        }
+
+        @Override
+        public void onItemClick(@NonNull View view, int position) {
             if (mListener != null) {
-                mListener.setCurrentBean(bean);
-                mListener.setCurrentViewHolder(holder);
                 mListener.onItemClick(view, position);
             }
         }
 
         @Override
-        public boolean onLongClick(View view) {
-            int position = getViewPosition(view);
-            BEAN bean = getViewBean(view);
-            BaseViewHolder holder = getViewHolder(view);
-
-            boolean state = false;
-            for (IContainerObserver observer : mObservers) {
-                state = state | observer.dispatchItemLongClicked(view, position, bean, holder);
-            }
+        public boolean onItemLongClick(@NonNull View view, int position) {
             if (mListener != null) {
-                mListener.setCurrentBean(bean);
-                mListener.setCurrentViewHolder(holder);
-                state = state | mListener.onItemLongClick(view, position);
+                return mListener.onItemLongClick(view, position);
             }
-            return state;
+            return false;
         }
 
-        /**
-         * 获取当前相对的position
-         */
-        private int getViewPosition(View view) {
-            BaseViewHolder holder = getViewHolder(view);
-            int absPosition = holder.getAdapterPosition();
-            if (absPosition < 0) {
-                absPosition = holder.getLayoutPosition();
-            }
-            ItemAdapterPositionInfo info = getContainerAdapter(view).getItemAdapterPositionInfo(absPosition);
-            return info.mItemPosition;
-        }
-
-        /**
-         * 获取当前view所保存的bean
-         */
-        @SuppressWarnings("unchecked")
-        private BEAN getViewBean(View view) {
-            return (BEAN) view.getTag(R.id.tag_view_bean);
-        }
-
-        /**
-         * 获取当前view所在的ViewHolder
-         */
-        private BaseViewHolder getViewHolder(View view) {
-            return (BaseViewHolder) view.getTag(R.id.tag_view_holder);
-        }
-
-        /**
-         * 获取当前view所保存的position
-         */
-        private BaseContainerAdapter getContainerAdapter(View view) {
-            return (BaseContainerAdapter) view.getTag(R.id.tag_view_container);
-        }
-
-        protected void setListener(@Nullable IContainerItemClick<BEAN> listener) {
+        public void setListener(@Nullable OnItemClickListener<BEAN> listener) {
             mListener = listener;
+        }
+
+        @Nullable
+        public OnItemClickListener<BEAN> getListener() {
+            return mListener;
         }
     }
 
@@ -254,10 +231,7 @@ public abstract class BaseContainerItemAdapter<BEAN extends IContainerBean> impl
         return mContainerAdapter;
     }
 
-    @Override
-    public int getItemCount() {
-        return 1;
-    }
+//    public int getItemCount() {}
 
 //    public int getSpanSize(int position) {}
 

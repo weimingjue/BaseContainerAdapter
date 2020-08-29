@@ -21,7 +21,7 @@ public class PaySuccessOrderAdapter extends OneContainerItemAdapter<ViewDataBind
         setOnItemClickListener(new OnItemClickListener<OrderBean>() {
             @Override
             public void onItemClick(@NonNull View view, int position) {
-                OrderBean bean = getCurrentBean();
+                OrderBean bean = getCurrentBean(view);
                 ToastUtils.toast("您点击了支付成功订单，订单号：" + bean.orderInfo.orderNo);
             }
         });

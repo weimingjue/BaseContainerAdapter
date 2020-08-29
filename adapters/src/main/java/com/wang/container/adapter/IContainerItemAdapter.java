@@ -10,7 +10,6 @@ import com.wang.container.bean.IContainerBean;
 import com.wang.container.bean.ItemAdapterPositionInfo;
 import com.wang.container.holder.BaseViewHolder;
 import com.wang.container.interfaces.IAdapter;
-import com.wang.container.interfaces.IContainerItemClick;
 import com.wang.container.interfaces.OnItemClickListener;
 import com.wang.container.observer.IContainerObserver;
 
@@ -20,7 +19,7 @@ import com.wang.container.observer.IContainerObserver;
  * 和普通adapter操作一样，加了个{@link #getCurrentBean}来确定当前adapter的数据
  * 所有的position均为相对的position，获取adapter在整个RecyclerView的绝对position见{@link #getCurrentPositionInfo()}
  */
-public interface IContainerItemAdapter<BEAN extends IContainerBean> extends IAdapter<IContainerItemClick<BEAN>> {
+public interface IContainerItemAdapter<BEAN extends IContainerBean> extends IAdapter<OnItemClickListener<BEAN>> {
 
     /**
      * observe主要用于notify

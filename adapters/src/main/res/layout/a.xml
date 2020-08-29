@@ -6,6 +6,10 @@
         <variable
             name="bean"
             type="Object" />
+        <!--具体adapter类-->
+        <variable
+            name="adapter"
+            type="com.wang.container.interfaces.IAdapter" />
     </data>
 
     <FrameLayout

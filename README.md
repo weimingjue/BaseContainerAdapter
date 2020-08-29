@@ -139,6 +139,12 @@ public class TextAdapter extends BaseContainerItemAdapter<BaseViewHolder, TextBe
 ItemAdapterPositionInfo info = getContainerAdapter().getItemAdapterPositionInfo(getCurrentBean(), position);
 ```
 
+### 3.0.3以后方法变更：
+```
+OnItemClickListener.getCurrentBean()>OnItemClickListener.getCurrentBean(view)（view为回调的view）
+OnItemClickListener.getCurrentViewHolder()>OnItemClickListener.getViewHolder(view)
+```
+
 
 ## 导入方式
 你的build.gradle要有jitpack.io，大致如下
@@ -153,7 +159,7 @@ allprojects {
 }
 ```
 AndroidX导入：
-`implementation（或api） 'com.github.weimingjue:BaseContainerAdapter:3.0.3'`
+`implementation（或api） 'com.github.weimingjue:BaseContainerAdapter:3.0.6'`
 
 混淆要求：
 ```

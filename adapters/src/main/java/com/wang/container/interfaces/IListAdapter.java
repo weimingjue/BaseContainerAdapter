@@ -15,7 +15,7 @@ import java.util.List;
 /**
  * 所有list的adapter的接口
  */
-public interface IListAdapter<BEAN, DB extends ViewDataBinding, LISTENER extends IItemClick> extends IAdapter<LISTENER> {
+public interface IListAdapter<BEANS, DB extends ViewDataBinding, LISTENER extends IItemClick> extends IAdapter<LISTENER> {
 
     /**
      * @param view null表示删除
@@ -54,7 +54,7 @@ public interface IListAdapter<BEAN, DB extends ViewDataBinding, LISTENER extends
      *
      * @param listPosition 已经做过处理,就是list的position
      */
-    void onBindListViewHolder(@NonNull BaseViewHolder<DB> holder, int listPosition, BEAN bean);
+    void onBindListViewHolder(@NonNull BaseViewHolder<DB> holder, int listPosition, BEANS bean);
 
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -62,12 +62,14 @@ public interface IListAdapter<BEAN, DB extends ViewDataBinding, LISTENER extends
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     @NonNull
-    List<BEAN> getList();
+    List<BEANS> getList();
 
-    default void setListAndNotifyDataSetChanged(@Nullable List<BEAN> list) {
-        getList().clear();
-        if (list != null) {
-            getList().addAll(list);
+    default void setListAndNotifyDataSetChanged(@Nullable List<BEANS> list) {
+        if (list != getList()) {//同一个对象当然啥都不需要干了
+            getList().clear();
+            if (list != null) {
+                getList().addAll(list);
+            }
         }
         notifyDataSetChanged();
     }
@@ -78,7 +80,7 @@ public interface IListAdapter<BEAN, DB extends ViewDataBinding, LISTENER extends
      * @throws IndexOutOfBoundsException 不用多说吧
      */
     @NonNull
-    default BEAN get(int listPosition) {
+    default BEANS get(int listPosition) {
         return getList().get(listPosition);
     }
 
@@ -92,8 +94,8 @@ public interface IListAdapter<BEAN, DB extends ViewDataBinding, LISTENER extends
     /**
      * 添加全部条目,不刷新adapter
      */
-    default void addAll(@Nullable Collection<? extends BEAN> addList) {
-        if (addList != null) {
+    default void addAll(@Nullable Collection<? extends BEANS> addList) {
+        if (addList != null && getList() != addList) {
             getList().addAll(addList);
         }
     }

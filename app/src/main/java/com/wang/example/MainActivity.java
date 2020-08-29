@@ -2,6 +2,7 @@ package com.wang.example;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.TextView;
@@ -27,6 +28,7 @@ import java.util.Collections;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
+    public static final String TAG = "MainActivity";
 
     private RecyclerView mRv;
     @Nullable
@@ -93,8 +95,10 @@ public class MainActivity extends AppCompatActivity {
         baseAdapter.setOnItemClickListener(new OnItemClickListener<BaseMsgBean>() {
             @Override
             public void onItemClick(@NonNull View view, int position) {
-                int absPosition = baseAdapter.getAbsPosition(getCurrentBean(), position);
-                ToastUtils.toast("Base的点击事件，绝对位置：" + absPosition);
+                int absPosition = getViewHolder(view).getCommonPosition();
+//                absPosition = baseAdapter.getAbsPosition(getCurrentBean(view), position);//一个效果
+
+                Log.d(TAG, "全局点击事件，绝对位置: " + absPosition);
             }
         });
         mRv.setAdapter(baseAdapter);

@@ -64,7 +64,7 @@ public interface IListAdapter<BEANS, DB extends ViewDataBinding, LISTENER extend
     @NonNull
     List<BEANS> getList();
 
-    default void setListAndNotifyDataSetChanged(@Nullable List<BEANS> list) {
+    default void setListAndNotifyDataSetChanged(@Nullable List<? extends BEANS> list) {
         if (list != getList()) {//同一个对象当然啥都不需要干了
             getList().clear();
             if (list != null) {

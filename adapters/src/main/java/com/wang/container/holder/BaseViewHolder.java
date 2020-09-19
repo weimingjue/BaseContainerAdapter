@@ -15,8 +15,6 @@ import androidx.databinding.DataBindingUtil;
 import androidx.databinding.ViewDataBinding;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.wang.container.R;
-
 /**
  * 所有ViewHolder的基类
  */
@@ -28,30 +26,43 @@ public class BaseViewHolder<DB extends ViewDataBinding> extends RecyclerView.Vie
     protected SparseArray<View> mViews;
 
     /**
-     * null不null自己知道
+     * DataBinding的创建移至{@link #getBinding()}
      */
-    private final DB mBinding;
-
     public BaseViewHolder(@NonNull View view) {
         super(view);
-        DB binding = null;
-        //如果非null，则说明不支持dataBinding
-        if (view.getTag(R.id.tag_view_no_data_binding) == null) {
-            try {
-                binding = DataBindingUtil.bind(view);
-            } catch (Exception e) {
-                Log.e(TAG, "不是基于dataBinding的view: " + e.toString());
-            }
-        }
-        mBinding = binding;
     }
 
     public BaseViewHolder(ViewGroup parent, @LayoutRes int layoutId) {
         this(LayoutInflater.from(parent.getContext()).inflate(layoutId, parent, false));
     }
 
+    /**
+     * @return 如果是null则说明你的view不是基于dataBinding
+     */
     public DB getBinding() {
-        return mBinding;
+        return getViewBinding(itemView);
+    }
+
+    /**
+     * 如果你的{@link #itemView}不是真正的dataBinding，可以调用此方法
+     */
+    protected final DB getViewBinding(View bindingView) {
+        //DataBindingUtil.bind的源码，这里判断只是为了减少异常打印
+        DB binding = DataBindingUtil.getBinding(bindingView);
+        if (binding != null) {
+            return binding;
+        }
+
+        Object tagObj = bindingView.getTag();
+        if (!(tagObj instanceof String)) {
+            return null;
+        }
+        try {
+            binding = DataBindingUtil.bind(bindingView);
+        } catch (Exception e) {
+            Log.e(TAG, "不是基于dataBinding的view: " + e.toString());
+        }
+        return binding;
     }
 
     @NonNull

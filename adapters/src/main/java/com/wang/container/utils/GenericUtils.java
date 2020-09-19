@@ -9,12 +9,13 @@ import androidx.databinding.ViewDataBinding;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.HashMap;
 
 /**
  * 获取泛型相关操作
  */
 public class GenericUtils {
-    private static final StringBuilder mBuilder = new StringBuilder();
+    private static final HashMap<String, Integer> mIds = new HashMap<>(64);
 
     /**
      * 根据dataBinding的名称获取对应资源id
@@ -28,27 +29,39 @@ public class GenericUtils {
     @MainThread
     @LayoutRes
     public static int getGenericRes(Context context, Class baseClass, Class childClass) {
+        //获取子类的dataBinding名
         Class<? extends ViewDataBinding> dbClass = GenericUtils.getGenericClass(ViewDataBinding.class, baseClass, childClass);
         if (dbClass == null || dbClass == ViewDataBinding.class) {
             throw new RuntimeException("泛型不合规：" + dbClass + "，class：" + childClass + "（如果想自定义，你必须覆盖相关方法）");
         }
+
+        //取缓存
+        String clsName = dbClass.getName();
+        Integer id = mIds.get(clsName);
+        if (id != null) {
+            return id;
+        }
+
+        //根据泛型查找id
         char[] chars = dbClass.getSimpleName().toCharArray();
-        mBuilder.setLength(0);
+        StringBuilder builder = new StringBuilder();
         for (char c : chars) {
             if (c < 91) {
                 c = (char) (c + 32);
-                if (mBuilder.length() > 0) {
-                    mBuilder.append("_");
-                    mBuilder.append(c);
+                if (builder.length() > 0) {
+                    builder.append("_");
+                    builder.append(c);
                 } else {
-                    mBuilder.append(c);
+                    builder.append(c);
                 }
             } else {
-                mBuilder.append(c);
+                builder.append(c);
             }
         }
-        mBuilder.setLength(mBuilder.length() - 8);//去掉结尾的_binding
-        return context.getResources().getIdentifier(mBuilder.toString(), "layout", context.getPackageName());
+        builder.setLength(builder.length() - 8);//去掉结尾的_binding
+        id = context.getResources().getIdentifier(builder.toString(), "layout", context.getPackageName());
+        mIds.put(clsName, id);//缓存
+        return id;
     }
 
     /**

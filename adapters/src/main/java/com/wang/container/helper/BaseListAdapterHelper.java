@@ -8,7 +8,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.wang.container.R;
 import com.wang.container.holder.BaseViewHolder;
 import com.wang.container.interfaces.IListAdapter;
 
@@ -33,7 +32,6 @@ public class BaseListAdapterHelper<BEAN> {
     public BaseViewHolder onCreateHeaderFooterViewHolder(@NonNull ViewGroup parent) {
         FrameLayout fl = new FrameLayout(parent.getContext());
         fl.setLayoutParams(new RecyclerView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-        fl.setTag(R.id.tag_view_no_data_binding, "headerFooter");
         return new BaseViewHolder(fl);
     }
 
@@ -53,7 +51,8 @@ public class BaseListAdapterHelper<BEAN> {
     }
 
     /**
-     * header、footer不复用，点击事件自己写
+     * ContainerAdapter没点击事件回调，需要自己写
+     * BaseAdapterRvList、BaseAdapterLvsList的点击事件在OnItemClickListener中有
      *
      * @param view null表示删除，view的parent为FrameLayout，默认match、wrap
      */
@@ -87,7 +86,8 @@ public class BaseListAdapterHelper<BEAN> {
     }
 
     /**
-     * header、footer不复用，点击事件自己写
+     * ContainerAdapter没点击回调，需要自己写
+     * BaseAdapterRvList、BaseAdapterLvsList的点击事件在OnItemClickListener中有
      *
      * @param view null表示删除，view的parent为FrameLayout，默认match、wrap
      */

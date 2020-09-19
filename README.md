@@ -144,7 +144,13 @@ ItemAdapterPositionInfo info = getContainerAdapter().getItemAdapterPositionInfo(
 OnItemClickListener.getCurrentBean()>OnItemClickListener.getCurrentBean(view)（view为回调的view）
 OnItemClickListener.getCurrentViewHolder()>OnItemClickListener.getViewHolder(view)
 ```
-
+### 特殊情况
+如果真的不想加混淆，则adapter的构造里传入layoutRes即可
+```
+public MyAdapter() {
+    super(R.layout.adapter_main_list, null);
+}
+```
 
 ## 导入方式
 你的build.gradle要有jitpack.io，大致如下
@@ -159,7 +165,7 @@ allprojects {
 }
 ```
 AndroidX导入：
-`implementation（或api） 'com.github.weimingjue:BaseContainerAdapter:3.0.6'`
+`implementation（或api） 'com.github.weimingjue:BaseContainerAdapter:3.0.7'`
 
 混淆要求：
 ```

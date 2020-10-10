@@ -46,7 +46,7 @@ public class GenericUtils {
         char[] chars = dbClass.getSimpleName().toCharArray();
         StringBuilder builder = new StringBuilder();
         for (char c : chars) {
-            if (c < 91) {
+            if (c < 91 && c > 64) {
                 c = (char) (c + 32);
                 if (builder.length() > 0) {
                     builder.append("_");

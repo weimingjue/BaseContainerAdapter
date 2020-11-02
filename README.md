@@ -171,7 +171,7 @@ allprojects {
 }
 ```
 AndroidX导入：
-`implementation（或api） 'com.github.weimingjue:BaseContainerAdapter:3.0.8'`
+`implementation（或api） 'com.github.weimingjue:BaseContainerAdapter:3.0.9'`
 
 混淆要求：
 ```

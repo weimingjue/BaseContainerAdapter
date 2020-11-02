@@ -1,17 +1,16 @@
 # 一个通过add其他adapter的超级容器，无论多么复杂的列表样式均可解耦成一个一个的adapter
 
 ## 详细示例见本项目app下的MainActivity
-### 说明：adapter的功能、方向及逻辑已经明确，后续将稳定发版，不会有较大改动
 
-首先要明白adapter也是复用的，所以才有getCurrentBean()这种操作（没加在方法上的原因是为了更简单更亲和于RecyclerView的adapter）
+首先要明白adapter也是复用的，所以才有getCurrentBean()这种操作（没加在方法上是为了更简单更亲和于RecyclerView的adapter）
 
 容器非常简单
 ```
-        mRv.setLayoutManager(new LinearLayoutManager(this));//如果是GridLayoutManager需要提前设置好，Linear随意
-        BaseContainerAdapter baseAdapter = new BaseContainerAdapter();
-        mRv.setAdapter(baseAdapter.addAdapter(new TextAdapter()));
-        //...
-        baseAdapter.setListAndNotifyDataSetChanged(list);
+mRv.setLayoutManager(new LinearLayoutManager(this));//如果是GridLayoutManager需要提前设置好，Linear随意
+BaseContainerAdapter baseAdapter = new BaseContainerAdapter();
+mRv.setAdapter(baseAdapter.addAdapter(new TextAdapter()));
+//...
+baseAdapter.setListAndNotifyDataSetChanged(list);
 ```
 子adapter基本和RecyclerView一致（一个条目的话，可以不需要layoutRes）
 ```
@@ -36,24 +35,31 @@ public class WaitPayOrderAdapter extends OneContainerItemAdapter<AdapterMsgWaitP
 ```
 每个adapter都自带点击事件
 ```
-        itemAdapter.setOnItemClickListener(new OnItemClickListener<TextBean>() {
-            @Override
-            public void onItemClick(@NonNull View view, int position) {
-                TextBean bean = getCurrentBean();
-                Toast.makeText(MyApplication.getContext(), "您点击了：" + bean.textInfo.text, Toast.LENGTH_SHORT).show();
-            }
-        });
+itemAdapter.setOnItemClickListener(new OnItemClickListener<TextBean>() {
+    @Override
+    public void onItemClick(@NonNull View view, int position) {
+        TextBean bean = getCurrentBean();
+        Toast.makeText(MyApplication.getContext(), "您点击了：" + bean.textInfo.text, Toast.LENGTH_SHORT).show();
+    }
+});
 ```
 容器也可以设置点击事件
 （和子adapter的事件都调用会触发，注意自己的逻辑别和子adapter重复）
 ```
-        baseAdapter.setOnItemClickListener(new OnItemClickListener<BaseMsgBean>() {
-            @Override
-            public void onItemClick(View view, int position) {
-                int absPosition = baseAdapter.getAbsPosition(getCurrentBean(), position);
-                Toast.makeText(MainActivity.this, "Base的点击事件，绝对位置：" + absPosition, Toast.LENGTH_SHORT).show();
-            }
-        });
+baseAdapter.setOnItemClickListener(new OnItemClickListener<BaseMsgBean>() {
+    @Override
+    public void onItemClick(View view, int position) {
+        int absPosition = baseAdapter.getAbsPosition(getCurrentBean(), position);
+        Toast.makeText(MainActivity.this, "Base的点击事件，绝对位置：" + absPosition, Toast.LENGTH_SHORT).show();
+    }
+});
+```
+容器可以设置header、footer（子adapter暂不支持）
+（和子adapter的事件都调用会触发，注意自己的逻辑别和子adapter重复）
+```
+baseAdapter.setHeaderView(headerView);
+baseAdapter.setFooterView(this, R.layout.adapter_main_footer);//根布局可以使用height、layout_margin、layout_gravity相关属性
+baseAdapter.getFooterView().setOnClickListener(v -> ToastUtils.toast("你点击了footer"));
 ```
 ## 拓展功能
 既然是adapter当然也可以有多条数据和多条目了
@@ -91,7 +97,7 @@ public class TextAdapter extends BaseContainerItemAdapter<BaseViewHolder, TextBe
     }
 }
 ```
-动画效果也支持了
+rv的动画效果
 ```
 adapter.setOnItemClickListener(new OnItemClickListener<TextBean>() {
     @Override
@@ -135,7 +141,7 @@ public class TextAdapter extends BaseContainerItemAdapter<BaseViewHolder, TextBe
 }
 //考虑到性能问题只能在{@link #bindViewHolder}{@link #getItemViewType}{@link #getSpanSize}三个地方使用
 //
-//当然也可以主动获取了（这个操作会遍历2遍数据，千条数据还是可以实时调用的）
+//当然也可以主动获取了（这个操作会遍历2遍数据，千条数据还是可以随便高频调用的）
 ItemAdapterPositionInfo info = getContainerAdapter().getItemAdapterPositionInfo(getCurrentBean(), position);
 ```
 

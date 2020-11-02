@@ -79,13 +79,9 @@ public class MainActivity extends AppCompatActivity {
         headerView.setText("这是header");
         headerView.setGravity(Gravity.CENTER);
         headerView.setPadding(50, 50, 50, 50);
-        TextView footerView = new TextView(this);
-        footerView.setText("这是footer");
-        footerView.setGravity(Gravity.CENTER);
-        footerView.setPadding(50, 50, 50, 50);
-        footerView.setOnClickListener(v -> ToastUtils.toast("你点击了footer"));
         baseAdapter.setHeaderView(headerView);
-        baseAdapter.setFooterView(footerView);
+        baseAdapter.setFooterView(this, R.layout.adapter_main_footer);
+        baseAdapter.getFooterView().setOnClickListener(v -> ToastUtils.toast("你点击了footer"));
 
         final List<BaseMsgBean> list = TestData.createMsgList();//模拟请求数据
         List<BaseMsgBean> newList = BaseMsgBean.formatListData(list);//格式化数据

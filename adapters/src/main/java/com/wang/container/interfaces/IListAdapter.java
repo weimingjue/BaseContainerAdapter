@@ -1,8 +1,12 @@
 package com.wang.container.interfaces;
 
+import android.content.Context;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 
+import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.databinding.ViewDataBinding;
@@ -17,16 +21,32 @@ import java.util.List;
  */
 public interface IListAdapter<BEANS, DB extends ViewDataBinding, LISTENER extends IItemClick> extends IAdapter<LISTENER> {
 
+    default void setHeaderView(@NonNull Context context, @LayoutRes int layoutRes) {
+        if (layoutRes == 0) {
+            setHeaderView(null);
+        } else {
+            setHeaderView(LayoutInflater.from(context).inflate(layoutRes, new FrameLayout(context), false));
+        }
+    }
+
     /**
-     * @param view null表示删除
+     * @param view null表示删除，view的parent为FrameLayout，默认match、wrap
      */
     void setHeaderView(@Nullable View view);
 
     @Nullable
     View getHeaderView();
 
+    default void setFooterView(@NonNull Context context, @LayoutRes int layoutRes) {
+        if (layoutRes == 0) {
+            setFooterView(null);
+        } else {
+            setFooterView(LayoutInflater.from(context).inflate(layoutRes, new FrameLayout(context), false));
+        }
+    }
+
     /**
-     * @param view null表示删除
+     * @param view null表示删除，view的parent为FrameLayout，默认match、wrap
      */
     void setFooterView(@Nullable View view);
 

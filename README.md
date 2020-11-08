@@ -19,17 +19,17 @@ public class WaitPayOrderAdapter extends OneContainerItemAdapter<AdapterMsgWaitP
     @Override
     protected void onBindChildViewHolder(@NonNull BaseViewHolder<AdapterMsgWaitPayOrderBinding> holder, OrderBean bean) {
         String text = "列表状态：";
-        int absState = getCurrentPositionInfo().mAbsState;
-        if ((absState & ItemAdapterPositionInfo.<ABS_STATE_FIRST_LIST_POSITION) != 0) {
+        ItemAdapterPositionInfo info = getCurrentPositionInfo();
+        if (info.isFirst()) {
             text += "整个列表第一个";
         }
-        if ((absState & ItemAdapterPositionInfo.<ABS_STATE_LAST_LIST_POSITION) != 0) {
+        if (info.isLast()) {
             text += "整个列表最后一个";
         }
-        if ((absState & ItemAdapterPositionInfo.ABS_STATE_CENTER_POSITION) != 0) {
+        if (info.isCenter()) {
             text += "列表中间";
         }
-        holder.getBinding().tvState.setText(text);
+        holder.getBinding().btState.setText(text);
     }
 }
 ```
@@ -70,6 +70,8 @@ public class TextAdapter extends BaseContainerItemAdapter<BaseViewHolder, TextBe
     protected void onBindViewHolder(@NonNull BaseViewHolder holder, int position) {
         TextView tv = (TextView) holder.itemView;
         tv.setText("这是文字：" + getCurrentBean().textInfo.text);
+        //ItemAdapterPositionInfo info = getCurrentPositionInfo();
+        //TextBean currentBean = (TextBean) getContainerAdapter().get(info.mListPosition);//和getCurrentBean()一样的
     }
 
     @Override
@@ -108,7 +110,7 @@ adapter.setOnItemClickListener(new OnItemClickListener<TextBean>() {
     }
 });
 ```
-如果是GridLayoutManage，也有getSpanSize
+如果是GridLayoutManager，也有getSpanSize
 ```
 public class TextAdapter extends BaseContainerItemAdapter<BaseViewHolder, TextBean> {
 
@@ -130,13 +132,12 @@ public class TextAdapter extends BaseContainerItemAdapter<BaseViewHolder, TextBe
     protected void onBindViewHolder(@NonNull BaseViewHolder holder, int position) {
         ItemAdapterPositionInfo info = getCurrentPositionInfo();//详见ItemAdapterPositionInfo类
         int absState = info.mAbsState;
-        if ((absState & ItemAdapterPositionInfo.<ABS_STATE_FIRST_LIST_POSITION) != 0) {
+        if (info.isFirst()) {
             text += "，整个列表第一个";
         }
-        if ((absState & ItemAdapterPositionInfo.<ABS_STATE_LAST_LIST_POSITION) != 0) {
+        if (info.isLast()) {
             text += "，整个列表最后一个";
         }
-        TextBean currentBean = (TextBean) getContainerAdapter().get(info.mListPosition);//和getCurrentBean一样的效果
     }
 }
 //考虑到性能问题只能在{@link #bindViewHolder}{@link #getItemViewType}{@link #getSpanSize}三个地方使用
@@ -171,7 +172,7 @@ allprojects {
 }
 ```
 AndroidX导入：
-`implementation（或api） 'com.github.weimingjue:BaseContainerAdapter:3.0.9'`
+`implementation（或api） 'com.github.weimingjue:BaseContainerAdapter:3.1.0'`
 
 混淆要求：
 ```

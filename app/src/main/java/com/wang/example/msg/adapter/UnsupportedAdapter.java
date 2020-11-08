@@ -32,11 +32,11 @@ public class UnsupportedAdapter extends OneContainerItemAdapter<ViewDataBinding,
         TextView tv = (TextView) holder.itemView;
         String text = "这是新版本的消息类型";
 
-        int absState = getCurrentPositionInfo().mAbsState;
-        if ((absState & ItemAdapterPositionInfo.ABS_STATE_FIRST_LIST_POSITION) != 0) {
+        ItemAdapterPositionInfo info = getCurrentPositionInfo();
+        if (info.isFirst()) {
             text += "，整个列表第一个";
         }
-        if ((absState & ItemAdapterPositionInfo.ABS_STATE_LAST_LIST_POSITION) != 0) {
+        if (info.isLast()) {
             text += "，整个列表最后一个";
         }
         tv.setText(text);

@@ -41,11 +41,11 @@ public class PaySuccessOrderAdapter extends OneContainerItemAdapter<ViewDataBind
         String text = "支付成功，订单号：" + bean.orderInfo.orderNo + "，订单名称" + bean.orderInfo.orderName
                 + "，物流：" + bean.orderInfo.otherOrderData.emsNo;
 
-        int absState = getCurrentPositionInfo().mAbsState;
-        if ((absState & ItemAdapterPositionInfo.ABS_STATE_FIRST_LIST_POSITION) != 0) {
+        ItemAdapterPositionInfo info = getCurrentPositionInfo();
+        if (info.isFirst()) {
             text += "，整个列表第一个";
         }
-        if ((absState & ItemAdapterPositionInfo.ABS_STATE_LAST_LIST_POSITION) != 0) {
+        if (info.isLast()) {
             text += "，整个列表最后一个";
         }
         tv.setText(text);

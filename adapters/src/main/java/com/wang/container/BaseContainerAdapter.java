@@ -263,11 +263,6 @@ public class BaseContainerAdapter<BEAN extends IContainerBean> extends RecyclerV
                 if (position == mHelper.mList.size() - 1) {
                     mItemPositionCacheInfo.mAbsState |= ItemAdapterPositionInfo.ABS_STATE_LAST_LIST_POSITION;
                 }
-                if ((mItemPositionCacheInfo.mAbsState & ItemAdapterPositionInfo.ABS_STATE_FIRST_LIST_POSITION) == 0 &&
-                        (mItemPositionCacheInfo.mAbsState & ItemAdapterPositionInfo.ABS_STATE_LAST_LIST_POSITION) == 0) {
-                    //不是第一个，也不是最后一个，当然是中间的了
-                    mItemPositionCacheInfo.mAbsState |= ItemAdapterPositionInfo.ABS_STATE_CENTER_POSITION;
-                }
                 if (getHeaderView() != null) {
                     mItemPositionCacheInfo.mAbsState |= ItemAdapterPositionInfo.ABS_STATE_HAS_HEADER;
                 }

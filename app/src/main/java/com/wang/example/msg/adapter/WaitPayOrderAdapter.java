@@ -34,14 +34,14 @@ public class WaitPayOrderAdapter extends OneContainerItemAdapter<AdapterMsgWaitP
     @Override
     protected void onBindChildViewHolder(@NonNull BaseViewHolder<AdapterMsgWaitPayOrderBinding> holder, OrderBean bean) {
         String text = "列表状态：";
-        int absState = getCurrentPositionInfo().mAbsState;
-        if ((absState & ItemAdapterPositionInfo.ABS_STATE_FIRST_LIST_POSITION) != 0) {
+        ItemAdapterPositionInfo info = getCurrentPositionInfo();
+        if (info.isFirst()) {
             text += "整个列表第一个";
         }
-        if ((absState & ItemAdapterPositionInfo.ABS_STATE_LAST_LIST_POSITION) != 0) {
+        if (info.isLast()) {
             text += "整个列表最后一个";
         }
-        if ((absState & ItemAdapterPositionInfo.ABS_STATE_CENTER_POSITION) != 0) {
+        if (info.isCenter()) {
             text += "列表中间";
         }
         holder.getBinding().btState.setText(text);

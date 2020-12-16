@@ -29,17 +29,17 @@ public class GenericUtils {
     @MainThread
     @LayoutRes
     public static int getGenericRes(Context context, Class baseClass, Class childClass) {
+        //取缓存
+        String clsName = baseClass.getName() + childClass.getName();
+        Integer id = mIds.get(clsName);
+        if (id != null) {
+            return id;
+        }
+
         //获取子类的dataBinding名
         Class<? extends ViewDataBinding> dbClass = GenericUtils.getGenericClass(ViewDataBinding.class, baseClass, childClass);
         if (dbClass == null || dbClass == ViewDataBinding.class) {
             throw new RuntimeException("泛型不合规：" + dbClass + "，class：" + childClass + "（如果想自定义，你必须覆盖相关方法）");
-        }
-
-        //取缓存
-        String clsName = dbClass.getName();
-        Integer id = mIds.get(clsName);
-        if (id != null) {
-            return id;
         }
 
         //根据泛型查找id

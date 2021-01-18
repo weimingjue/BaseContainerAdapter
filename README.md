@@ -151,6 +151,10 @@ ItemAdapterPositionInfo info = getContainerAdapter().getItemAdapterPositionInfo(
 OnItemClickListener.getCurrentBean()>OnItemClickListener.getCurrentBean(view)（view为回调的view）
 OnItemClickListener.getCurrentViewHolder()>OnItemClickListener.getViewHolder(view)
 ```
+### 3.1.1升级请注意：
+
+由于getCurrentBean可能会被错误的滥用，所以错误使用时（延时调用或其他乱用）会抛出NullPointerException，升级版本时请自行重新测试一遍
+
 ### 特殊情况
 如果真的不想加混淆，则adapter的构造里传入layoutRes即可
 ```
@@ -172,7 +176,7 @@ allprojects {
 }
 ```
 AndroidX导入：
-`implementation（或api） 'com.github.weimingjue:BaseContainerAdapter:3.1.0'`
+`implementation（或api） 'com.github.weimingjue:BaseContainerAdapter:3.1.1'`
 
 混淆要求：
 ```

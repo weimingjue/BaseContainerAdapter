@@ -153,7 +153,11 @@ public class BaseContainerAdapter<BEAN extends IContainerBean> extends RecyclerV
             default:
                 ItemAdapterPositionInfo info = getItemPositionInfo(position);
                 IContainerItemAdapter itemAdapter = info.mItemAdapter;
+                //noinspection unchecked
+                itemAdapter.setCurrentBean(getList().get(info.mListPosition));
                 itemAdapter.bindViewHolder(holder, info.mItemPosition);
+                //noinspection ConstantConditions,unchecked，置null便于检查错误
+                itemAdapter.setCurrentBean(null);
                 break;
         }
     }
@@ -190,7 +194,11 @@ public class BaseContainerAdapter<BEAN extends IContainerBean> extends RecyclerV
 
         ItemAdapterPositionInfo info = getItemPositionInfo(position);
         IContainerItemAdapter itemAdapter = info.mItemAdapter;
+        //noinspection unchecked
+        itemAdapter.setCurrentBean(getList().get(info.mListPosition));
         int itemType = itemAdapter.getItemViewType(info.mItemPosition);
+        //noinspection ConstantConditions,unchecked，置null便于检查错误
+        itemAdapter.setCurrentBean(null);
         if (itemType < TYPE_MIN || itemType >= TYPE_MAX) {
             throw new RuntimeException("你的adapter" + itemAdapter.getClass() + "的type必须在" + TYPE_MIN + "~" + TYPE_MAX + "之间，type：" + itemType);
         }
@@ -212,6 +220,8 @@ public class BaseContainerAdapter<BEAN extends IContainerBean> extends RecyclerV
             //noinspection unchecked 如果出现ClassCastException，请检查你list里的bean对象和adapter的bean是否一致
             itemAdapter.setCurrentBean(bean);
             count += itemAdapter.getItemCount();
+            //noinspection ConstantConditions,unchecked，置null便于检查错误
+            itemAdapter.setCurrentBean(null);
         }
         return count;
     }
@@ -232,7 +242,7 @@ public class BaseContainerAdapter<BEAN extends IContainerBean> extends RecyclerV
 
     /**
      * 根据绝对position获取子adapter的相关信息
-     * 并且已经做过{@link IContainerItemAdapter#setCurrentBean}{@link IContainerItemAdapter#setCurrentPositionInfo}
+     * 已经做过{@link IContainerItemAdapter#setCurrentPositionInfo}
      *
      * @param position 绝对position
      */
@@ -248,6 +258,9 @@ public class BaseContainerAdapter<BEAN extends IContainerBean> extends RecyclerV
             //noinspection unchecked 如果出现ClassCastException，请检查你list里的bean对象和adapter的bean是否一致
             itemAdapter.setCurrentBean(bean);
             int itemCount = itemAdapter.getItemCount();
+            //noinspection ConstantConditions,unchecked，置null便于检查错误
+            itemAdapter.setCurrentBean(null);
+
             int nextStartPosition = itemStartPosition + itemCount;
             //下一个adapter的位置比position大说明当前type就在这个adapter中
             if (nextStartPosition > position) {
@@ -457,6 +470,8 @@ public class BaseContainerAdapter<BEAN extends IContainerBean> extends RecyclerV
                 //noinspection unchecked 如果出现ClassCastException，请检查你list里的bean对象和adapter的bean是否一致
                 itemAdapter.setCurrentBean(listBean);
                 position += itemAdapter.getItemCount();
+                //noinspection ConstantConditions,unchecked，置null便于检查错误
+                itemAdapter.setCurrentBean(null);
             }
         }
         throw new RuntimeException("在list中没有找到传入的bean对象" + bean);
@@ -464,6 +479,8 @@ public class BaseContainerAdapter<BEAN extends IContainerBean> extends RecyclerV
 
     /**
      * 根据绝对position获取对应adapter的额外信息
+     *
+     * @return 这个对象是复用的，一次性消费
      */
     @MainThread
     public ItemAdapterPositionInfo getItemAdapterPositionInfo(int absPosition) {
@@ -474,6 +491,7 @@ public class BaseContainerAdapter<BEAN extends IContainerBean> extends RecyclerV
      * 根据bean和相对position获取对应adapter的额外信息
      *
      * @param itemAdapterPosition 相对potion
+     * @return 这个对象是复用的，一次性消费
      */
     @MainThread
     public ItemAdapterPositionInfo getItemAdapterPositionInfo(IContainerBean bean, int itemAdapterPosition) {
@@ -527,7 +545,12 @@ public class BaseContainerAdapter<BEAN extends IContainerBean> extends RecyclerV
                 }
                 ItemAdapterPositionInfo info = getItemPositionInfo(position);
                 IContainerItemAdapter itemAdapter = info.mItemAdapter;
-                return itemAdapter.getSpanSize(info.mItemPosition);
+                //noinspection unchecked
+                itemAdapter.setCurrentBean(getList().get(info.mListPosition));
+                int spanSize = itemAdapter.getSpanSize(info.mItemPosition);
+                //noinspection ConstantConditions,unchecked，置null便于检查错误
+                itemAdapter.setCurrentBean(null);
+                return spanSize;
             }
         });
     }

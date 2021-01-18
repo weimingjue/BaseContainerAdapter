@@ -160,7 +160,7 @@ public MyAdapter() {
 ```
 
 ## 导入方式
-你的build.gradle要有jitpack.io，大致如下
+你的build.gradle要有jitpack.io，大致如下：
 ```
 allprojects {
     repositories {

@@ -201,12 +201,17 @@ public abstract class BaseContainerItemAdapter<BEAN extends IContainerBean> impl
 
     /**
      * @return 当前的bean，每次想用的时候get就对了
-     * 在回调里请用这个{@link OnItemClickListener#getCurrentBean}
-     * 用的的地方：{@link #getItemCount}{@link #onCreateViewHolder}{@link #onBindViewHolder}{@link #getSpanSize}{@link #getItemViewType}...
+     * 用的的地方：{@link #getItemCount}{@link #onBindViewHolder}{@link #getSpanSize}{@link #getItemViewType}...
+     * <p>
+     * 注意：不能延时后调用，如onClickListener，请使用{@link OnItemClickListener#getCurrentBean}或get后声明为final
+     * @throws NullPointerException 延时调用的才会抛出，为了便于检查错误
      */
     @NonNull
     @Override
     public final BEAN getCurrentBean() {
+        if (mCurrentBean == null) {
+            throw new NullPointerException("请注意调用时机，使用OnItemClickListener#getCurrentBean或get后声明为final");
+        }
         return mCurrentBean;
     }
 

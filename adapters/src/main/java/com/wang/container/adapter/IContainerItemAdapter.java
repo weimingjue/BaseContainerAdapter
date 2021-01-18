@@ -69,6 +69,8 @@ public interface IContainerItemAdapter<BEAN extends IContainerBean> extends IAda
     void attachContainer(@NonNull BaseContainerAdapter containerAdapter);
 
     /**
+     * 没有position，不能使用getCurrent相关方法
+     *
      * @param viewType 该adapter自己的type
      */
     @NonNull
@@ -99,12 +101,15 @@ public interface IContainerItemAdapter<BEAN extends IContainerBean> extends IAda
      *
      * @throws ClassCastException 请检查你list里的bean对象和adapter的bean是否一致
      */
+    @SuppressWarnings("NullableProblems")
     void setCurrentBean(@NonNull BEAN bean);
 
     /**
      * @return 当前的bean，每次想用的时候get就对了
-     * 在回调里请用这个{@link OnItemClickListener#getCurrentBean}
-     * 用的的地方：{@link #getItemCount}{@link #createViewHolder}{@link #bindViewHolder}{@link #getSpanSize}{@link #getItemViewType}...
+     * 用的的地方：{@link #getItemCount}{@link #bindViewHolder}{@link #getSpanSize}{@link #getItemViewType}...
+     * <p>
+     * 注意：不能延时后调用，如onClickListener，请使用{@link OnItemClickListener#getCurrentBean}或get后声明为final
+     * @throws NullPointerException 延时调用的才会抛出，为了便于检查错误
      */
     @NonNull
     BEAN getCurrentBean();

@@ -82,6 +82,8 @@ public abstract class OneContainerItemAdapter<DB extends ViewDataBinding, BEAN e
 
     /**
      * 当然还有{@link #getCurrentPositionInfo()}
+     *
+     * @param bean 就是{@link #getCurrentBean()}
      */
     protected abstract void onBindChildViewHolder(@NonNull BaseViewHolder<DB> holder, BEAN bean);
 }

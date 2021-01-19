@@ -55,7 +55,6 @@ baseAdapter.setOnItemClickListener(new OnItemClickListener<BaseMsgBean>() {
 });
 ```
 容器可以设置header、footer（子adapter暂不支持）
-（和子adapter的事件都调用会触发，注意自己的逻辑别和子adapter重复）
 ```
 baseAdapter.setHeaderView(headerView);
 baseAdapter.setFooterView(this, R.layout.adapter_main_footer);//根布局可以使用height、layout_margin、layout_gravity相关属性

@@ -2,7 +2,7 @@
 
 ## 详细示例见本项目app下的MainActivity
 
-首先要明白adapter也是复用的，所以才有getCurrentBean()这种操作（没加在方法上是为了更简单更亲和于RecyclerView的adapter）
+首先要明白adapter也是复用的，所以才有getCurrentBean这种操作（没加在方法上是为了更简单更亲和于RecyclerView的adapter）
 
 容器非常简单
 ```
@@ -38,7 +38,7 @@ public class WaitPayOrderAdapter extends OneContainerItemAdapter<AdapterMsgWaitP
 itemAdapter.setOnItemClickListener(new OnItemClickListener<TextBean>() {
     @Override
     public void onItemClick(@NonNull View view, int position) {
-        TextBean bean = getCurrentBean();
+        TextBean bean = getCurrentBean(view);
         Toast.makeText(MyApplication.getContext(), "您点击了：" + bean.textInfo.text, Toast.LENGTH_SHORT).show();
     }
 });
@@ -49,7 +49,7 @@ itemAdapter.setOnItemClickListener(new OnItemClickListener<TextBean>() {
 baseAdapter.setOnItemClickListener(new OnItemClickListener<BaseMsgBean>() {
     @Override
     public void onItemClick(View view, int position) {
-        int absPosition = baseAdapter.getAbsPosition(getCurrentBean(), position);
+        int absPosition = baseAdapter.getAbsPosition(getCurrentBean(view), position);
         Toast.makeText(MainActivity.this, "Base的点击事件，绝对位置：" + absPosition, Toast.LENGTH_SHORT).show();
     }
 });
@@ -98,7 +98,7 @@ public class TextAdapter extends BaseContainerItemAdapter<BaseViewHolder, TextBe
     }
 }
 ```
-rv的动画效果
+支持rv自带的效果
 ```
 adapter.setOnItemClickListener(new OnItemClickListener<TextBean>() {
     @Override
@@ -145,14 +145,18 @@ public class TextAdapter extends BaseContainerItemAdapter<BaseViewHolder, TextBe
 ItemAdapterPositionInfo info = getContainerAdapter().getItemAdapterPositionInfo(getCurrentBean(), position);
 ```
 
-### 3.0.3以后方法变更：
+### 版本变更
+**3.0.3以后方法变更：**
 ```
 OnItemClickListener.getCurrentBean()>OnItemClickListener.getCurrentBean(view)（view为回调的view）
 OnItemClickListener.getCurrentViewHolder()>OnItemClickListener.getViewHolder(view)
 ```
-### 3.1.1升级请注意：
+**3.1.1升级请注意：**
 
 由于getCurrentBean可能会被错误的滥用，所以错误使用时（延时调用或其他乱用）会抛出NullPointerException，升级版本时请自行重新测试一遍
+
+### 普通Adapter见
+ [一个极简化的adapter](https://github.com/weimingjue/BaseAdapter)
 
 ### 特殊情况
 如果真的不想加混淆，则adapter的构造里传入layoutRes即可

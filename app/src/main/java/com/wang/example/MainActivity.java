@@ -92,9 +92,10 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemClick(@NonNull View view, int position) {
                 int absPosition = getViewHolder(view).getCommonPosition();
+                int listPosition = getViewHolder(view).getListPosition();
 //                absPosition = baseAdapter.getAbsPosition(getCurrentBean(view), position);//一个效果
 
-                Log.d(TAG, "全局点击事件，绝对位置: " + absPosition);
+                Log.d(TAG, "全局点击事件，绝对位置: " + absPosition + "，list的position：" + listPosition);
             }
         });
         mRv.setAdapter(baseAdapter);

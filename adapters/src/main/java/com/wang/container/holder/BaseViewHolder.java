@@ -15,6 +15,9 @@ import androidx.databinding.DataBindingUtil;
 import androidx.databinding.ViewDataBinding;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.wang.container.R;
+import com.wang.container.interfaces.IListAdapter;
+
 /**
  * 所有ViewHolder的基类
  */
@@ -95,6 +98,24 @@ public class BaseViewHolder<DB extends ViewDataBinding> extends RecyclerView.Vie
             return adapterPosition;
         }
         return getLayoutPosition();
+    }
+
+    /**
+     * 如果是listAdapter，则会减掉header
+     */
+    public int getListPosition() {
+        int position = getCommonPosition();
+        Object oa = itemView.getTag(R.id.tag_view_container);
+        if (oa == null) {
+            oa = itemView.getTag(R.id.tag_view_adapter);
+        }
+        if (oa instanceof IListAdapter) {
+            IListAdapter adapter = (IListAdapter) oa;
+            if (adapter.getHeaderView() != null && position >= 1) {
+                position--;
+            }
+        }
+        return position;
     }
 
     /**

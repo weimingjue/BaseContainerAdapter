@@ -15,8 +15,11 @@ import com.wang.container.utils.GenericUtils;
  * 一个list的item仅对应一条数据，如：聊天
  */
 public abstract class OneContainerItemAdapter<DB extends ViewDataBinding, BEAN extends IContainerBean> extends BaseContainerItemAdapter<BEAN> {
+    /**
+     * 如果构造不传，则一直是0
+     */
     @LayoutRes
-    protected int mLayoutId;
+    protected final int mLayoutId;
 
     /**
      * 资源id已经不是必须的了
@@ -75,7 +78,7 @@ public abstract class OneContainerItemAdapter<DB extends ViewDataBinding, BEAN e
 
     protected BaseViewHolder<DB> onCreateChildViewHolder(ViewGroup parent) {
         if (mLayoutId == 0) {
-            mLayoutId = GenericUtils.getGenericRes(parent.getContext(), OneContainerItemAdapter.class, getClass());
+            return new BaseViewHolder<>(GenericUtils.getGenericView(parent.getContext(), OneContainerItemAdapter.class, getClass(), parent));
         }
         return new BaseViewHolder<>(parent, mLayoutId);
     }

@@ -1,12 +1,17 @@
 package com.wang.container.utils;
 
 import android.content.Context;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 
 import androidx.annotation.LayoutRes;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.databinding.ViewDataBinding;
 
+import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.HashMap;
@@ -24,7 +29,7 @@ public class GenericUtils {
      *
      * @param baseClass  基类class（BaseXxx.class）
      * @param childClass 子类class（getClass()）
-     * @throws IndexOutOfBoundsException 必须在Proguard里忽略ViewDataBinding的子类不然会崩溃
+     * @return 0表示没找到，请查看Proguard里有没有混淆
      */
     @MainThread
     @LayoutRes
@@ -37,10 +42,7 @@ public class GenericUtils {
         }
 
         //获取子类的dataBinding名
-        Class<? extends ViewDataBinding> dbClass = GenericUtils.getGenericClass(ViewDataBinding.class, baseClass, childClass);
-        if (dbClass == null || dbClass == ViewDataBinding.class) {
-            throw new RuntimeException("泛型不合规：" + dbClass + "，class：" + childClass + "（如果想自定义，你必须覆盖相关方法）");
-        }
+        Class<? extends ViewDataBinding> dbClass = getBindingClass(baseClass, childClass);
 
         //根据泛型查找id
         char[] chars = dbClass.getSimpleName().toCharArray();
@@ -58,10 +60,39 @@ public class GenericUtils {
                 builder.append(c);
             }
         }
-        builder.setLength(builder.length() - 8);//去掉结尾的_binding
-        id = context.getResources().getIdentifier(builder.toString(), "layout", context.getPackageName());
-        mIds.put(clsName, id);//缓存
-        return id;
+        if (builder.length() > 8) {
+            builder.setLength(builder.length() - 8);//去掉结尾的_binding
+            id = context.getResources().getIdentifier(builder.toString(), "layout", context.getPackageName());
+            if (id != 0) {
+                mIds.put(clsName, id);//缓存
+                return id;
+            }
+        }
+        return 0;
+    }
+
+    /**
+     * 根据泛型获取dataBinding的view，支持混淆
+     *
+     * @param parent inflate的parent
+     */
+    @NonNull
+    public static View getGenericView(Context context, Class baseClass, Class childClass, @Nullable ViewGroup parent) {
+        int id = getGenericRes(context, baseClass, childClass);
+        LayoutInflater inflater = LayoutInflater.from(context);
+        if (id != 0) {
+            return inflater.inflate(id, parent, false);
+        }
+        //获取子类的dataBinding名
+        Class<? extends ViewDataBinding> dbClass = getBindingClass(baseClass, childClass);
+        try {
+            Method im = dbClass.getMethod("inflate", LayoutInflater.class, ViewGroup.class, boolean.class);
+            ViewDataBinding vdb = (ViewDataBinding) im.invoke(null, inflater, parent, false);
+            return vdb.getRoot();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("未知错误：" + dbClass + "，class：" + childClass);
+        }
     }
 
     /**
@@ -91,5 +122,14 @@ public class GenericUtils {
             }
         }
         return getGenericClass(genericSuperClass, endClass, myClass.getSuperclass());
+    }
+
+    @NonNull
+    private static Class<? extends ViewDataBinding> getBindingClass(Class baseClass, Class childClass) {
+        Class<? extends ViewDataBinding> dbClass = GenericUtils.getGenericClass(ViewDataBinding.class, baseClass, childClass);
+        if (dbClass == null || dbClass == ViewDataBinding.class) {
+            throw new RuntimeException("泛型不合规：" + dbClass + "，class：" + childClass + "（如果想自定义，你必须覆盖相关方法）");
+        }
+        return dbClass;
     }
 }

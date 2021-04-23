@@ -157,9 +157,6 @@ OnItemClickListener.getCurrentViewHolder()>OnItemClickListener.getViewHolder(vie
 
 ### 普通Adapter见
  [一个极简化的adapter](https://github.com/weimingjue/BaseAdapter)
-
-### 特殊情况
-如果真的不想加混淆，则adapter的构造里传入layoutRes即可
 ```
 public MyAdapter() {
     super(R.layout.adapter_main_list, null);
@@ -179,11 +176,8 @@ allprojects {
 }
 ```
 AndroidX导入：
-`implementation（或api） 'com.github.weimingjue:BaseContainerAdapter:3.1.1'`
+`implementation（或api） 'com.github.weimingjue:BaseContainerAdapter:3.2.0'`
 
 混淆要求：
-```
-# 框架特殊要求
-# 根据泛型获取res资源需要
--keep class * extends androidx.databinding.ViewDataBinding
-```
+加 -keep class * extends androidx.databinding.ViewDataBinding 可能会快一点
+不加也没啥影响

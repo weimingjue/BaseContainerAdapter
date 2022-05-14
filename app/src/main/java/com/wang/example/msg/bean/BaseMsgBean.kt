@@ -1,6 +1,6 @@
 package com.wang.example.msg.bean
 
-import com.wang.container.adapter.IContainerItemAdapter
+import com.wang.container.adapter.BaseContainerItemAdapter
 import com.wang.container.bean.IContainerBean
 import com.wang.example.msg.adapter.UnsupportedAdapter
 
@@ -16,7 +16,7 @@ open class BaseMsgBean(oldBean: BaseMsgBean? = null) : IContainerBean {
     }
 
 
-    override fun getBindAdapterClass(): Class<out IContainerItemAdapter<*>> =
+    override fun getBindAdapterClass(): Class<out BaseContainerItemAdapter<*>> =
         UnsupportedAdapter::class.java
 
     companion object {

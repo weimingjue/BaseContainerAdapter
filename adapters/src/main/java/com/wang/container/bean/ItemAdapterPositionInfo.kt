@@ -1,6 +1,6 @@
 package com.wang.container.bean
 
-import com.wang.container.adapter.IContainerItemAdapter
+import com.wang.container.adapter.BaseContainerItemAdapter
 
 class ItemAdapterPositionInfo {
 
@@ -32,9 +32,9 @@ class ItemAdapterPositionInfo {
     val absState get() = _absState
     internal var _absState = 0
 
-    val itemAdapter: IContainerItemAdapter<*>
+    val itemAdapter: BaseContainerItemAdapter<*>
         get() = _itemAdapter!!
-    internal var _itemAdapter: IContainerItemAdapter<*>? = null
+    internal var _itemAdapter: BaseContainerItemAdapter<*>? = null
 
     /**
      * 是不是列表第一个（除了header）

@@ -179,5 +179,5 @@ AndroidX导入：
 `implementation（或api） 'com.github.weimingjue:BaseContainerAdapter:3.2.0'`
 
 混淆要求：
-加 -keep class * extends androidx.databinding.ViewDataBinding 可能会快一点
+加 -keep class * extends androidx.databinding.ViewBinding 可能会快一点
 不加也没啥影响

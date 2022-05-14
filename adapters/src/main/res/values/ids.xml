@@ -8,4 +8,6 @@
     <item name="tag_view_adapter" type="id" />
     <!--当前containerAdapter-->
     <item name="tag_view_container" type="id" />
+    <!--当前item子view点击tag-->
+    <item name="tag_view_item_tag" type="id" />
 </resources>

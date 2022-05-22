@@ -25,7 +25,7 @@ class ImgAdapter : OneContainerItemAdapter<ViewBinding, ImgBean>() {
         bean: ImgBean
     ) {
         val iv = holder.itemView as ImageView
-        iv.setImageResource(getCurrentBean().imgInfo.imgRes)
+        iv.setImageResource(bean.imgInfo.imgRes)
     }
 
     init {

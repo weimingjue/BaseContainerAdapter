@@ -2,7 +2,6 @@ package com.wang.container.holder
 
 import android.content.Context
 import android.view.View
-import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import androidx.viewbinding.ViewBinding
 import com.wang.container.R
@@ -24,19 +23,14 @@ class BaseViewHolder<VB : ViewBinding>(item: View) : ViewHolder(item) {
     val vb
         get() = _vb ?: throw IllegalArgumentException("没有传入vb，所以不能调用")
 
-    private var lvPosition = RecyclerView.NO_POSITION
-
     val context: Context
         get() = itemView.context
 
     /**
-     * lv和rv都调用这个
+     * 把adapterPosition和layoutPosition合并一起了
      */
     val commonPosition: Int
         get() {
-            if (lvPosition >= 0) {
-                return lvPosition
-            }
             if (adapterPosition >= 0) {
                 return adapterPosition
             }
@@ -66,11 +60,4 @@ class BaseViewHolder<VB : ViewBinding>(item: View) : ViewHolder(item) {
             }
             return position
         }
-
-    /**
-     * 框架层的listView需要手动调用此position，业务层无需关心
-     */
-    fun setLvPosition(position: Int) {
-        lvPosition = position
-    }
 }

@@ -15,7 +15,6 @@ interface IAdapter<LISTENER : IItemClick> {
     fun getOnItemClickListener(): LISTENER?
     fun getItemCount(): Int
     fun getItemViewType(position: Int) = 0
-    fun notifyDataSetChanged()
     fun createViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder<*>
     fun bindViewHolder(holder: BaseViewHolder<*>, position: Int)
 
@@ -39,4 +38,24 @@ interface IAdapter<LISTENER : IItemClick> {
             view.setOnLongClickListener(getOnItemClickListener())
         }
     }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////
+    // notify相关方法
+    /////////////////////////////////////////////////////////////////////////////////////////////////
+
+    fun notifyDataSetChanged()
+
+    fun notifyItemChanged(position: Int)
+
+    fun notifyItemRangeChanged(positionStart: Int, itemCount: Int)
+
+    fun notifyItemInserted(position: Int)
+
+    fun notifyItemRangeInserted(positionStart: Int, itemCount: Int)
+
+    fun notifyItemMoved(fromPosition: Int, toPosition: Int)
+
+    fun notifyItemRemoved(position: Int)
+
+    fun notifyItemRangeRemoved(positionStart: Int, itemCount: Int)
 }

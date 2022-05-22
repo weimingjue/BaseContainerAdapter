@@ -2,46 +2,38 @@ package com.wang.container.adapter
 
 import android.view.View
 import android.view.ViewGroup
+import androidx.annotation.CallSuper
 import androidx.annotation.IntRange
 import androidx.collection.ArraySet
+import androidx.recyclerview.widget.RecyclerView
 import com.wang.container.BaseContainerAdapter
 import com.wang.container.R
 import com.wang.container.bean.IContainerBean
 import com.wang.container.bean.ItemAdapterPositionInfo
 import com.wang.container.holder.BaseViewHolder
-import com.wang.container.interfaces.IAdapter
 import com.wang.container.interfaces.OnItemClickListener
 import com.wang.container.observer.IContainerObserver
 
 /**
- * 和普通adapter操作一样，加了个[getCurrentBean]来确定当前adapter的数据
+ * 和普通adapter操作一样，加了个currentBean来确定当前adapter的数据
  * 所有的position均为相对的position，获取adapter在整个RecyclerView的绝对position见[getCurrentPositionInfo]
  */
-abstract class BaseContainerItemAdapter<BEAN : IContainerBean> :
-    IAdapter<OnItemClickListener<BEAN>> {
+abstract class BaseContainerItemAdapter<BEAN : IContainerBean> {
     private val observers = ArraySet<IContainerObserver>()
     private val wrapListener = MyItemClickListenerWrap()
 
-    /**
-     * @throws ClassCastException 请检查你list里的bean对象和adapter的bean是否一致
-     */
-    internal var currentBean: BEAN? = null
     internal var currentPositionInfo: ItemAdapterPositionInfo? = null
     private var _containerAdapter: BaseContainerAdapter<*>? = null
-
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // 继承下来的基本实现,正常情况不需要再重写
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     /**
      * observe主要用于notify
      * 此方法一般由父容器调用，所以不能加泛型
      */
-    fun registerDataSetObserver(observer: IContainerObserver) {
+    open fun registerDataSetObserver(observer: IContainerObserver) {
         observers.add(observer)
     }
 
-    fun unregisterDataSetObserver(observer: IContainerObserver) {
+    open fun unregisterDataSetObserver(observer: IContainerObserver) {
         observers.remove(observer)
     }
 
@@ -50,7 +42,7 @@ abstract class BaseContainerItemAdapter<BEAN : IContainerBean> :
      *
      * @param viewType 该adapter自己的type
      */
-    final override fun createViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder<*> {
+    fun createViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder<*> {
         val holder = onCreateViewHolder(parent, viewType)
         holder.itemView.setTag(R.id.tag_view_holder, holder)
         holder.itemView.setTag(R.id.tag_view_adapter, this)
@@ -63,27 +55,24 @@ abstract class BaseContainerItemAdapter<BEAN : IContainerBean> :
      * 如：[getItemCount]=1(每个bean只对应一条数据)，这个position一直是0（就是没用的意思）
      * 如：[getItemCount]=xx(你的bean里面还有自己的list)，这个position就是相对的值
      */
-    final override fun bindViewHolder(holder: BaseViewHolder<*>, position: Int) {
-        holder.itemView.setTag(R.id.tag_view_bean, getCurrentBean())
+    fun bindViewHolder(holder: BaseViewHolder<*>, currentBean: BEAN, position: Int) {
+        holder.itemView.setTag(R.id.tag_view_bean, currentBean)
         holder.itemView.setOnClickListener(wrapListener)
         holder.itemView.setOnLongClickListener(wrapListener)
-        onBindViewHolder(holder, position)
+        onBindViewHolder(holder, currentBean, position)
     }
 
-    override fun setOnItemClickListener(listener: OnItemClickListener<BEAN>?) {
+    open fun setOnItemClickListener(listener: OnItemClickListener<BEAN>?) {
         wrapListener.listener = listener
         notifyDataSetChanged()
     }
 
-    @Deprecated("这个不是真是的listener", ReplaceWith("getRealItemClickListener"))
-    override fun getOnItemClickListener(): OnItemClickListener<BEAN>? = wrapListener
-
-    fun getRealItemClickListener(): OnItemClickListener<BEAN>? = wrapListener.listener
+    open fun getOnItemClickListener(): OnItemClickListener<BEAN>? = wrapListener
 
     /**
      * 刷新全部的adapter数据,其他方法均是局部刷新
      */
-    override fun notifyDataSetChanged() {
+    open fun notifyDataSetChanged() {
         observers.forEach { it.notifyDataSetChanged() }
     }
 
@@ -91,38 +80,38 @@ abstract class BaseContainerItemAdapter<BEAN : IContainerBean> :
      * @param position 就是item的position（我自己会计算绝对位置）
      * @param bean     list的bean数据,没有bean的话无法确定位置
      */
-    fun notifyItemChanged(position: Int, bean: BEAN) {
+    open fun notifyItemChanged(position: Int, bean: BEAN) {
         notifyItemChanged(position, 1, bean)
     }
 
-    fun notifyItemChanged(positionStart: Int, itemCount: Int, bean: BEAN) {
+    open fun notifyItemChanged(positionStart: Int, itemCount: Int, bean: BEAN) {
         observers.forEach { it.notifyItemChanged(positionStart, itemCount, bean) }
     }
 
-    fun notifyItemInserted(position: Int, bean: BEAN) {
+    open fun notifyItemInserted(position: Int, bean: BEAN) {
         notifyItemInserted(position, 1, bean)
     }
 
-    fun notifyItemInserted(positionStart: Int, itemCount: Int, bean: BEAN) {
+    open fun notifyItemInserted(positionStart: Int, itemCount: Int, bean: BEAN) {
         observers.forEach { it.notifyItemInserted(positionStart, itemCount, bean) }
     }
 
-    fun notifyItemMoved(fromPosition: Int, toPosition: Int, bean: BEAN) {
+    open fun notifyItemMoved(fromPosition: Int, toPosition: Int, bean: BEAN) {
         observers.forEach { it.notifyItemMoved(fromPosition, toPosition, bean) }
     }
 
-    fun notifyItemRemoved(position: Int, bean: BEAN) {
+    open fun notifyItemRemoved(position: Int, bean: BEAN) {
         notifyItemRemoved(position, 1, bean)
     }
 
-    fun notifyItemRemoved(positionStart: Int, itemCount: Int, bean: BEAN) {
+    open fun notifyItemRemoved(positionStart: Int, itemCount: Int, bean: BEAN) {
         observers.forEach { it.notifyItemRemoved(positionStart, itemCount, bean) }
     }
 
     /**
      * 将容器自己传进来（会在[BaseContainerAdapter.addAdapter]立即调用,正常使用不会为null）
      */
-    fun attachContainer(containerAdapter: BaseContainerAdapter<*>) {
+    open fun attachContainer(containerAdapter: BaseContainerAdapter<*>) {
         _containerAdapter = containerAdapter
     }
 
@@ -160,14 +149,6 @@ abstract class BaseContainerItemAdapter<BEAN : IContainerBean> :
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // 以下是经常用到或重写的方法
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    /**
-     * @return 当前的bean，每次想用的时候get就对了
-     * 用的的地方：[getItemCount]、[onBindViewHolder]、[getSpanSize]、[getItemViewType]...
-     *
-     * 注意：不能延时后调用，如onClickListener，请使用[OnItemClickListener.getCurrentBean]或get后声明为final
-     */
-    fun getCurrentBean() = currentBean
-        ?: throw NullPointerException("请注意调用时机，使用OnItemClickListener#getCurrentBean或get后声明为final")
 
     /**
      * 当前position额外附加的数据，方便adapter使用
@@ -176,19 +157,16 @@ abstract class BaseContainerItemAdapter<BEAN : IContainerBean> :
      *
      * 使用场景：有header展示线条，没header去掉线条；第一条展示红色，最后一条展示黑色
      */
-    fun getCurrentPositionInfo() = currentPositionInfo
+    open fun getCurrentPositionInfo() = currentPositionInfo
         ?: throw NullPointerException("请注意调用时机，延迟请调用BaseContainerAdapter.getItemAdapterPositionInfo")
 
     /**
      * 返回容器（会在[BaseContainerAdapter.addAdapter]立即调用,正常使用不会为null）
      */
-    val containerAdapter: BaseContainerAdapter<*>
+    open val containerAdapter: BaseContainerAdapter<*>
         get() = _containerAdapter ?: throw NullPointerException("只有在addAdapter后才可调用")
 
-    //    public int getItemCount() {}
-
-    fun getSpanSize(position: Int) = 1
-
+    open fun getSpanSize(currentBean: BEAN, position: Int) = 1
 
     /**
      * @param position 相对的position
@@ -198,7 +176,9 @@ abstract class BaseContainerItemAdapter<BEAN : IContainerBean> :
         from = BaseContainerAdapter.TYPE_MIN.toLong(),
         to = BaseContainerAdapter.TYPE_MAX.toLong()
     )
-    override fun getItemViewType(position: Int) = 0
+    open fun getItemViewType(currentBean: BEAN, position: Int) = 0
+
+    abstract fun getItemCount(currentBean: BEAN): Int
 
     /**
      * @param viewType 该adapter自己的type
@@ -212,5 +192,31 @@ abstract class BaseContainerItemAdapter<BEAN : IContainerBean> :
      * 如：[getItemCount]=1(每个bean只对应一条数据)，这个position一直是0（就是没用的意思）
      * 如：[getItemCount]=xx(你的bean里面还有自己的list)，这个position就是相对的值
      */
-    protected abstract fun onBindViewHolder(holder: BaseViewHolder<*>, position: Int)
+    protected abstract fun onBindViewHolder(
+        holder: BaseViewHolder<*>,
+        currentBean: BEAN,
+        position: Int,
+    )
+
+
+    /**
+     * 给view设置点击事件到[setOnItemClickListener]中
+     *
+     * 点击回调见[setOnItemClickListener]、[OnItemClickListener]
+     *
+     * @param clickTag 由于id不便辨识和使用，在adapter中声明tag更便于查看和修改
+     */
+    @CallSuper
+    fun setItemViewClickWithTag(view: View, holder: BaseViewHolder<*>, clickTag: String) {
+        //view.setTag(R.id.tag_view_holder, holder.itemView.getTag(R.id.tag_view_holder));
+        view.setTag(R.id.tag_view_holder, holder)
+        view.setTag(R.id.tag_view_bean, holder.itemView.getTag(R.id.tag_view_bean))
+        //view.setTag(R.id.tag_view_adapter, holder.itemView.getTag(R.id.tag_view_adapter));
+        view.setTag(R.id.tag_view_adapter, this)
+        view.setTag(R.id.tag_view_container, holder.itemView.getTag(R.id.tag_view_container))
+        if (view !is RecyclerView) {
+            view.setOnClickListener(getOnItemClickListener())
+            view.setOnLongClickListener(getOnItemClickListener())
+        }
+    }
 }

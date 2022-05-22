@@ -119,4 +119,39 @@ interface IListAdapter<BEANS, DB : ViewBinding, LISTENER : IItemClick> : IAdapte
     fun isEmptyList(): Boolean {
         return list.isEmpty()
     }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////
+    // notify相关方法
+    /////////////////////////////////////////////////////////////////////////////////////////////////
+
+    /**
+     * 刷新list的position，解决[notifyItemChanged]的position问题
+     */
+    fun notifyListItemChanged(listPosition: Int) {
+        notifyItemChanged(listPosition + headerViewCount)
+    }
+
+    fun notifyListItemRangeChanged(listPositionStart: Int, itemCount: Int) {
+        notifyItemRangeChanged(listPositionStart + headerViewCount, itemCount)
+    }
+
+    fun notifyListItemInserted(listPosition: Int) {
+        notifyItemInserted(listPosition + headerViewCount)
+    }
+
+    fun notifyListItemRangeInserted(listPositionStart: Int, itemCount: Int) {
+        notifyItemRangeInserted(listPositionStart + headerViewCount, itemCount)
+    }
+
+    fun notifyListItemMoved(listFromPosition: Int, listToPosition: Int) {
+        notifyItemMoved(listFromPosition + headerViewCount, listToPosition + headerViewCount)
+    }
+
+    fun notifyListItemRemoved(listPosition: Int) {
+        notifyItemRemoved(listPosition + headerViewCount)
+    }
+
+    fun notifyListItemRangeRemoved(listPositionStart: Int, itemCount: Int) {
+        notifyItemRangeRemoved(listPositionStart + headerViewCount, itemCount)
+    }
 }

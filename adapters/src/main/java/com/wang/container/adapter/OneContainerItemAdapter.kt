@@ -24,16 +24,15 @@ abstract class OneContainerItemAdapter<VB : ViewBinding, BEAN : IContainerBean> 
         return onCreateChildViewHolder(parent)
     }
 
-    final override fun onBindViewHolder(holder: BaseViewHolder<*>, position: Int) {
-        onBindChildViewHolder(holder as BaseViewHolder<VB>, getCurrentBean())
+    override fun onBindViewHolder(holder: BaseViewHolder<*>, currentBean: BEAN, position: Int) {
+        onBindChildViewHolder(holder as BaseViewHolder<VB>, currentBean)
     }
 
     /**
      * 仅一条数据，不允许重写
      */
-    final override fun getItemViewType(position: Int) = 0
-
-    final override fun getItemCount() = 1
+    final override fun getItemViewType(currentBean: BEAN, position: Int) = 0
+    final override fun getItemCount(currentBean: BEAN) = 1
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // 公共方法

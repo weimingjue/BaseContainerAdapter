@@ -18,22 +18,21 @@ class ItemAdapterPositionInfo {
      * list的position，container的position
      */
     val listPosition get() = _listPosition
-    internal var _listPosition = 0
+    internal var _listPosition = -1
 
     /**
      * 子adapter对应的相对position
      */
     val itemPosition get() = _itemPosition
-    internal var _itemPosition = 0
+    internal var _itemPosition = -1
 
     /**
      * 当前position所在的位置信息，见下方相关方法[isFirst]等
      */
     val absState get() = _absState
-    internal var _absState = 0
+    internal var _absState = -1
 
-    val itemAdapter: BaseContainerItemAdapter<*>
-        get() = _itemAdapter!!
+    val itemAdapter: BaseContainerItemAdapter<*> get() = _itemAdapter!!
     internal var _itemAdapter: BaseContainerItemAdapter<*>? = null
 
     /**

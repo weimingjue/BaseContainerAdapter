@@ -29,7 +29,7 @@ import com.wang.container.utils.castSuperAdapter
  * 可以用在如：天猫首页、bilibili、今日头条、聊天列表页面
  *
  *
- * 核心思想：每个[BEAN]的item都当作一个adapter，为了复用和管理相同adapter，在子adapter传入了[BEAN]、[BaseContainerItemAdapter.getCurrentBean]
+ * 核心思想：每个[BEAN]的item都当作一个adapter，所以再调用时都有个currentBean，adapter更新/判断数据时以currentBean为准
  *
  *
  * 使用前提（都是无关紧要的，但也要看看）：
@@ -66,7 +66,7 @@ open class BaseContainerAdapter<BEAN : IContainerBean> @JvmOverloads constructor
 
         override fun notifyItemChanged(positionStart: Int, itemCount: Int, bean: IContainerBean) {
             val newPosition = getAbsPosition(bean, positionStart)
-            this@BaseContainerAdapter.notifyItemRangeChanged(newPosition, itemCount, null)
+            this@BaseContainerAdapter.notifyItemRangeChanged(newPosition, itemCount)
         }
 
         override fun notifyItemInserted(positionStart: Int, itemCount: Int, bean: IContainerBean) {
@@ -127,10 +127,8 @@ open class BaseContainerAdapter<BEAN : IContainerBean> @JvmOverloads constructor
             else -> {
                 val info = getItemPositionInfo(position)
                 val itemAdapter = info.itemAdapter.castSuperAdapter()
-                itemAdapter.currentBean = list[info._listPosition]
                 itemAdapter.currentPositionInfo = info
-                itemAdapter.bindViewHolder(holder, info.itemPosition)
-                itemAdapter.currentBean = null
+                itemAdapter.bindViewHolder(holder, list[info.listPosition], info.itemPosition)
             }
         }
     }
@@ -161,9 +159,7 @@ open class BaseContainerAdapter<BEAN : IContainerBean> @JvmOverloads constructor
         }
         val info = getItemPositionInfo(position)
         val itemAdapter = info.itemAdapter.castSuperAdapter()
-        itemAdapter.currentBean = list[info._listPosition]
-        val itemType = itemAdapter.getItemViewType(info.itemPosition)
-        itemAdapter.currentBean = null
+        val itemType = itemAdapter.getItemViewType(list[info.listPosition], info.itemPosition)
         if (itemType < TYPE_MIN || itemType >= TYPE_MAX) {
             throw RuntimeException("你的adapter" + itemAdapter.javaClass + "的type必须在" + TYPE_MIN + "~" + TYPE_MAX + "之间，type：" + itemType)
         }
@@ -182,9 +178,7 @@ open class BaseContainerAdapter<BEAN : IContainerBean> @JvmOverloads constructor
         listHelper.list.forEach { bean ->
             val itemAdapter =
                 adaptersManager.getAdapter(bean.getBindAdapterClass()).castSuperAdapter()
-            itemAdapter.currentBean = bean
-            count += itemAdapter.getItemCount()
-            itemAdapter.currentBean = null
+            count += itemAdapter.getItemCount(bean)
         }
         return count
     }
@@ -217,9 +211,7 @@ open class BaseContainerAdapter<BEAN : IContainerBean> @JvmOverloads constructor
         listHelper.list.forEachIndexed { i, bean ->
             val itemAdapter =
                 adaptersManager.getAdapter(bean.getBindAdapterClass()).castSuperAdapter()
-            itemAdapter.currentBean = bean
-            val itemCount = itemAdapter.getItemCount()
-            itemAdapter.currentBean = null
+            val itemCount = itemAdapter.getItemCount(bean)
             val nextStartPosition = itemStartPosition + itemCount
             //下一个adapter的位置比position大说明当前type就在这个adapter中
             if (nextStartPosition > position) {
@@ -393,9 +385,7 @@ open class BaseContainerAdapter<BEAN : IContainerBean> @JvmOverloads constructor
             } else {
                 val itemAdapter =
                     adaptersManager.getAdapter(bean.getBindAdapterClass()).castSuperAdapter()
-                itemAdapter.currentBean = bean
-                position += itemAdapter.getItemCount()
-                itemAdapter.currentBean = null
+                position += itemAdapter.getItemCount(bean)
             }
         }
         throw RuntimeException("在list中没有找到传入的bean对象$bean")
@@ -440,10 +430,7 @@ open class BaseContainerAdapter<BEAN : IContainerBean> @JvmOverloads constructor
                 }
                 val info = getItemPositionInfo(position)
                 val itemAdapter = info.itemAdapter.castSuperAdapter()
-                itemAdapter.currentBean = list[info._listPosition]
-                val spanSize = itemAdapter.getSpanSize(info.itemPosition)
-                itemAdapter.currentBean = null
-                return spanSize
+                return itemAdapter.getSpanSize(list[info.listPosition], info.itemPosition)
             }
         }
     }
@@ -458,11 +445,4 @@ open class BaseContainerAdapter<BEAN : IContainerBean> @JvmOverloads constructor
         set(value) {
             listHelper.footerView = value
         }
-
-    /**
-     * 刷新list的position，解决[notifyItemChanged]的position问题
-     */
-    fun notifyListItemChanged(listPosition: Int) {
-        notifyItemChanged(listPosition + headerViewCount)
-    }
 }

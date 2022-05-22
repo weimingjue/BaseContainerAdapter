@@ -37,14 +37,14 @@ import com.wang.container.utils.castSuperAdapter
  * 2.子adapter必须是[BaseContainerItemAdapter]、[BaseContainerItemAdapter]的子类
  * 3.子adapter的type必须在[TYPE_MAX]、[TYPE_MIN]之间
  * 4.如果是GridLayoutManager必须在adapter前设置（在rv.setAdapter或addAdapter之前或手动调用[changedLayoutManager]）
- * 5.有header时直接调用BaseContainerAdapter的[notifyItemChanged]相关方法时需要+1（所有adapter的通病，建议使用[notifyListItemChanged]）（子adapter不受此影响）
+ * 5.有header时直接调用BaseContainerAdapter的[notifyItemChanged]相关方法时需要+1（所有adapter的通病，建议使用[notifyListItemChanged]）（子adapter刷新时无需考虑父的header）
  * 其他限制暂时没发现
  *
  *
  * https://blog.csdn.net/weimingjue/article/details/106468916
  */
 @SuppressLint("NotifyDataSetChanged")
-open class BaseContainerAdapter<BEAN : IContainerBean> @JvmOverloads constructor(list: List<BEAN>? = null) :
+class BaseContainerAdapter<BEAN : IContainerBean> @JvmOverloads constructor(list: List<BEAN>? = null) :
     RecyclerView.Adapter<BaseViewHolder<*>>(),
     IListAdapter<BEAN, ViewBinding, OnItemClickListener<BEAN>> {
 
@@ -54,12 +54,12 @@ open class BaseContainerAdapter<BEAN : IContainerBean> @JvmOverloads constructor
         private const val TYPE_MINUS = TYPE_MAX - TYPE_MIN
     }
 
-    protected val TYPE_HEADER = -1 * TYPE_MINUS + 1
-    protected val TYPE_FOOTER = -1 * TYPE_MINUS + 2 //防止和adapter重复
-    private val itemPositionCacheInfo = ItemAdapterPositionInfo()
+    private val TYPE_HEADER = -1 * TYPE_MINUS + 1
+    private val TYPE_FOOTER = -1 * TYPE_MINUS + 2 //防止和adapter重复
+    private var lastCachePositionInfo: ItemAdapterPositionInfo? = null
     private var onItemClickListener: OnItemClickListener<BEAN>? = null
-    protected val adaptersManager = MyAdaptersManager()
-    protected val observers: IContainerObserver = object : IContainerObserver {
+    private val adaptersManager = MyAdaptersManager()
+    private val childObservers: IContainerObserver = object : IContainerObserver {
         override fun notifyDataSetChanged() {
             this@BaseContainerAdapter.notifyDataSetChanged()
         }
@@ -95,13 +95,47 @@ open class BaseContainerAdapter<BEAN : IContainerBean> @JvmOverloads constructor
             return onItemClickListener?.onLongClick(view) ?: false
         }
     }
-    protected var recyclerView: RecyclerView? = null
-    protected var layoutManager: GridLayoutManager? = null
+    private var recyclerView: RecyclerView? = null
+    private var lastLayoutManager: GridLayoutManager? = null
 
     /**
      * list相关代码合并
      */
     private val listHelper = BaseListAdapterHelper(this, list)
+
+    init {
+        registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver() {
+            override fun onChanged() {
+                super.onChanged()
+                onAdapterChanged()
+            }
+
+            override fun onItemRangeChanged(positionStart: Int, itemCount: Int) {
+                super.onItemRangeChanged(positionStart, itemCount)
+                onAdapterChanged()
+            }
+
+            override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
+                super.onItemRangeInserted(positionStart, itemCount)
+                onAdapterChanged()
+            }
+
+            override fun onItemRangeRemoved(positionStart: Int, itemCount: Int) {
+                super.onItemRangeRemoved(positionStart, itemCount)
+                onAdapterChanged()
+            }
+
+            override fun onItemRangeMoved(fromPosition: Int, toPosition: Int, itemCount: Int) {
+                super.onItemRangeMoved(fromPosition, toPosition, itemCount)
+                onAdapterChanged()
+            }
+
+            fun onAdapterChanged() {
+                lastCachePositionInfo = null
+            }
+        })
+    }
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder<*> {
         return when (viewType) {
             TYPE_HEADER, TYPE_FOOTER -> {
@@ -125,10 +159,9 @@ open class BaseContainerAdapter<BEAN : IContainerBean> @JvmOverloads constructor
                 return
             }
             else -> {
-                val info = getItemPositionInfo(position)
+                val info = getCacheItemPositionInfo(position)
                 val itemAdapter = info.itemAdapter.castSuperAdapter()
-                itemAdapter.currentPositionInfo = info
-                itemAdapter.bindViewHolder(holder, list[info.listPosition], info.itemPosition)
+                itemAdapter.bindViewHolder(holder, list[info.absListPosition], info.itemPosition)
             }
         }
     }
@@ -157,9 +190,9 @@ open class BaseContainerAdapter<BEAN : IContainerBean> @JvmOverloads constructor
         if (isFooterView && itemCount == position + 1) {
             return TYPE_FOOTER
         }
-        val info = getItemPositionInfo(position)
+        val info = getCacheItemPositionInfo(position)
         val itemAdapter = info.itemAdapter.castSuperAdapter()
-        val itemType = itemAdapter.getItemViewType(list[info.listPosition], info.itemPosition)
+        val itemType = itemAdapter.getItemViewType(list[info.absListPosition], info.itemPosition)
         if (itemType < TYPE_MIN || itemType >= TYPE_MAX) {
             throw RuntimeException("你的adapter" + itemAdapter.javaClass + "的type必须在" + TYPE_MIN + "~" + TYPE_MAX + "之间，type：" + itemType)
         }
@@ -168,13 +201,7 @@ open class BaseContainerAdapter<BEAN : IContainerBean> @JvmOverloads constructor
     }
 
     override fun getItemCount(): Int {
-        var count = 0
-        if (isHeaderView) {
-            count++
-        }
-        if (isFooterView) {
-            count++
-        }
+        var count = headerViewCount + footerViewCount
         listHelper.list.forEach { bean ->
             val itemAdapter =
                 adaptersManager.getAdapter(bean.getBindAdapterClass()).castSuperAdapter()
@@ -188,9 +215,9 @@ open class BaseContainerAdapter<BEAN : IContainerBean> @JvmOverloads constructor
         checkLayoutManager()
     }
 
-    protected fun checkLayoutManager() {
+    private fun checkLayoutManager() {
         (recyclerView?.layoutManager as? GridLayoutManager)?.let {
-            if (layoutManager != it) {
+            if (lastLayoutManager != it) {
                 changedLayoutManager(it)
             }
         }
@@ -201,11 +228,15 @@ open class BaseContainerAdapter<BEAN : IContainerBean> @JvmOverloads constructor
      *
      * @param absPosition 绝对position
      */
-    protected fun getItemPositionInfo(absPosition: Int): ItemAdapterPositionInfo {
-        var position = absPosition
-        if (isHeaderView) {
-            position-- //去掉header
+    private fun getCacheItemPositionInfo(absPosition: Int): ItemAdapterPositionInfo {
+        val absListPosition = absPosition - headerViewCount
+
+        //取缓存
+        val cacheInfo = lastCachePositionInfo
+        if (cacheInfo?.absListPosition == absListPosition) {
+            return cacheInfo
         }
+
         //itemAdapter的position=0时的真实位置
         var itemStartPosition = 0
         listHelper.list.forEachIndexed { i, bean ->
@@ -213,33 +244,30 @@ open class BaseContainerAdapter<BEAN : IContainerBean> @JvmOverloads constructor
                 adaptersManager.getAdapter(bean.getBindAdapterClass()).castSuperAdapter()
             val itemCount = itemAdapter.getItemCount(bean)
             val nextStartPosition = itemStartPosition + itemCount
-            //下一个adapter的位置比position大说明当前type就在这个adapter中
-            if (nextStartPosition > position) {
-                itemPositionCacheInfo._listPosition = i
-                itemPositionCacheInfo._itemPosition = position - itemStartPosition
+
+            if (nextStartPosition > absListPosition) {
+                //下一个adapter的位置比position大说明当前type就在这个adapter中
+
+                val itemPosition = absListPosition - itemStartPosition
 
                 //当前状态
-                itemPositionCacheInfo._absState = 0
-                if (position == 0) {
-                    itemPositionCacheInfo._absState =
-                        itemPositionCacheInfo.absState or ItemAdapterPositionInfo.ABS_STATE_FIRST_LIST_POSITION
+                var absState = 0
+                if (absListPosition == 0) {
+                    absState = absState or ItemAdapterPositionInfo.ABS_STATE_FIRST_LIST_POSITION
                 }
-                if (position == listHelper.list.size - 1) {
-                    itemPositionCacheInfo._absState =
-                        itemPositionCacheInfo.absState or ItemAdapterPositionInfo.ABS_STATE_LAST_LIST_POSITION
+                if (absListPosition == listHelper.list.lastIndex) {
+                    absState = absState or ItemAdapterPositionInfo.ABS_STATE_LAST_LIST_POSITION
                 }
                 if (isHeaderView) {
-                    itemPositionCacheInfo._absState =
-                        itemPositionCacheInfo.absState or ItemAdapterPositionInfo.ABS_STATE_HAS_HEADER
+                    absState = absState or ItemAdapterPositionInfo.ABS_STATE_HAS_HEADER
                 }
                 if (isFooterView) {
-                    itemPositionCacheInfo._absState =
-                        itemPositionCacheInfo.absState or ItemAdapterPositionInfo.ABS_STATE_HAS_FOOTER
+                    absState = absState or ItemAdapterPositionInfo.ABS_STATE_HAS_FOOTER
                 }
-                //设置position信息
-                itemAdapter.currentPositionInfo = itemPositionCacheInfo
-                itemPositionCacheInfo._itemAdapter = itemAdapter
-                return itemPositionCacheInfo
+
+                val info = ItemAdapterPositionInfo(i, itemPosition, absState, itemAdapter)
+                lastCachePositionInfo = info
+                return info
             } else {
                 //循环相加
                 itemStartPosition = nextStartPosition
@@ -251,14 +279,14 @@ open class BaseContainerAdapter<BEAN : IContainerBean> @JvmOverloads constructor
     /**
      * position、adapter、class唯一并且可以互相取值
      */
-    protected inner class MyAdaptersManager {
+    private inner class MyAdaptersManager {
         val map = SimpleArrayMap<Class<out BaseContainerItemAdapter<*>>, Int>(8)
         val list = ArrayList<BaseContainerItemAdapter<*>>(8)
 
         fun addAdapter(adapters: List<BaseContainerItemAdapter<*>>) {
             adapters.forEach { adapter ->
                 adapter.attachContainer(this@BaseContainerAdapter)
-                adapter.registerDataSetObserver(observers)
+                adapter.registerDataSetObserver(childObservers)
                 if (!map.containsKey(adapter.javaClass)) {
                     list.add(adapter)
                     map.put(adapter.javaClass, list.lastIndex)
@@ -378,10 +406,7 @@ open class BaseContainerAdapter<BEAN : IContainerBean> @JvmOverloads constructor
         var position = itemAdapterPosition
         listHelper.list.forEach { listBean ->
             if (listBean === bean) {
-                if (isHeaderView) {
-                    position++ //加上header
-                }
-                return position
+                return position + headerViewCount
             } else {
                 val itemAdapter =
                     adaptersManager.getAdapter(bean.getBindAdapterClass()).castSuperAdapter()
@@ -394,11 +419,12 @@ open class BaseContainerAdapter<BEAN : IContainerBean> @JvmOverloads constructor
     /**
      * 根据绝对position获取对应adapter的额外信息
      *
-     * @return 这个对象是复用的，一次性消费，不要声明final或者保存
+     * @param absPosition 一般为[BaseViewHolder.commonPosition]
+     * @return 不建议声明为final，因为[notifyItemChanged]相关方法时并不会更新里面的position
      */
     @MainThread
     fun getItemAdapterPositionInfo(absPosition: Int): ItemAdapterPositionInfo {
-        return getItemPositionInfo(absPosition)
+        return getCacheItemPositionInfo(absPosition)
     }
 
     /**
@@ -420,7 +446,7 @@ open class BaseContainerAdapter<BEAN : IContainerBean> @JvmOverloads constructor
      * 把rv的LayoutManager改成其他的GridLayoutManager时.此方法理论上没啥用
      */
     fun changedLayoutManager(manager: GridLayoutManager) {
-        layoutManager = manager
+        lastLayoutManager = manager
         manager.spanSizeLookup = object : SpanSizeLookup() {
             override fun getSpanSize(position: Int): Int {
                 if (isHeaderView && position == 0) {
@@ -428,9 +454,9 @@ open class BaseContainerAdapter<BEAN : IContainerBean> @JvmOverloads constructor
                 } else if (isFooterView && itemCount == position + 1) {
                     return manager.spanCount
                 }
-                val info = getItemPositionInfo(position)
+                val info = getCacheItemPositionInfo(position)
                 val itemAdapter = info.itemAdapter.castSuperAdapter()
-                return itemAdapter.getSpanSize(list[info.listPosition], info.itemPosition)
+                return itemAdapter.getSpanSize(list[info.absListPosition], info.itemPosition)
             }
         }
     }

@@ -2,7 +2,17 @@ package com.wang.container.bean
 
 import com.wang.container.adapter.BaseContainerItemAdapter
 
-class ItemAdapterPositionInfo {
+/**
+ * @param absListPosition 绝对值，container的list position
+ * @param itemPosition 相对值，子adapter对应的相对position
+ * @param absState 当前position所在的绝对位置信息，见下方相关方法[isFirst]等
+ */
+class ItemAdapterPositionInfo(
+    val absListPosition: Int,
+    val itemPosition: Int,
+    val absState: Int,
+    val itemAdapter: BaseContainerItemAdapter<*>
+) {
 
     companion object {
         /**
@@ -13,27 +23,6 @@ class ItemAdapterPositionInfo {
         const val ABS_STATE_HAS_HEADER = ABS_STATE_FIRST_LIST_POSITION shl 3 //有header
         const val ABS_STATE_HAS_FOOTER = ABS_STATE_FIRST_LIST_POSITION shl 4 //有footer
     }
-
-    /**
-     * list的position，container的position
-     */
-    val listPosition get() = _listPosition
-    internal var _listPosition = -1
-
-    /**
-     * 子adapter对应的相对position
-     */
-    val itemPosition get() = _itemPosition
-    internal var _itemPosition = -1
-
-    /**
-     * 当前position所在的位置信息，见下方相关方法[isFirst]等
-     */
-    val absState get() = _absState
-    internal var _absState = -1
-
-    val itemAdapter: BaseContainerItemAdapter<*> get() = _itemAdapter!!
-    internal var _itemAdapter: BaseContainerItemAdapter<*>? = null
 
     /**
      * 是不是列表第一个（除了header）

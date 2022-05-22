@@ -9,7 +9,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.wang.container.BaseContainerAdapter
 import com.wang.container.R
 import com.wang.container.bean.IContainerBean
-import com.wang.container.bean.ItemAdapterPositionInfo
 import com.wang.container.holder.BaseViewHolder
 import com.wang.container.interfaces.OnItemClickListener
 import com.wang.container.observer.IContainerObserver
@@ -22,7 +21,6 @@ abstract class BaseContainerItemAdapter<BEAN : IContainerBean> {
     private val observers = ArraySet<IContainerObserver>()
     private val wrapListener = MyItemClickListenerWrap()
 
-    internal var currentPositionInfo: ItemAdapterPositionInfo? = null
     private var _containerAdapter: BaseContainerAdapter<*>? = null
 
     /**
@@ -151,14 +149,14 @@ abstract class BaseContainerItemAdapter<BEAN : IContainerBean> {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     /**
-     * 当前position额外附加的数据，方便adapter使用
-     * 子类能使用的地方[bindViewHolder]、[getItemViewType]、[getSpanSize]
-     * 或者手动调用[BaseContainerAdapter.getItemAdapterPositionInfo]也行
+     * 当前position在父adapter的附加信息
      *
-     * 使用场景：有header展示线条，没header去掉线条；第一条展示红色，最后一条展示黑色
+     * 使用场景示例：有header展示线条，没header去掉线条；第一条展示红色，最后一条展示黑色
      */
-    open fun getCurrentPositionInfo() = currentPositionInfo
-        ?: throw NullPointerException("请注意调用时机，延迟请调用BaseContainerAdapter.getItemAdapterPositionInfo")
+    open fun getCurrentPositionInfo(
+        bean: IContainerBean,
+        itemAdapterPosition: Int
+    ) = containerAdapter.getItemAdapterPositionInfo(bean, itemAdapterPosition)
 
     /**
      * 返回容器（会在[BaseContainerAdapter.addAdapter]立即调用,正常使用不会为null）

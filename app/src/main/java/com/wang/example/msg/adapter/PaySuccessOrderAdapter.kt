@@ -27,7 +27,7 @@ class PaySuccessOrderAdapter : OneContainerItemAdapter<ViewBinding, OrderBean>()
         val tv: TextView = holder.itemView as TextView
         var text = ("支付成功，订单号：" + bean.orderInfo.orderNo + "，订单名称" + bean.orderInfo.orderName
                 + "，物流：" + bean.orderInfo.otherOrderData.emsNo)
-        val info: ItemAdapterPositionInfo = getCurrentPositionInfo()
+        val info: ItemAdapterPositionInfo = getCurrentPositionInfo(bean)
         if (info.isFirst) {
             text += "，整个列表第一个"
         }

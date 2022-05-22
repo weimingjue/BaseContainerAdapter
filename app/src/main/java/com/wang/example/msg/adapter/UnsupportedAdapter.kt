@@ -26,7 +26,7 @@ class UnsupportedAdapter : OneContainerItemAdapter<ViewBinding, BaseMsgBean>() {
     ) {
         val tv: TextView = holder.itemView as TextView
         var text = "这是新版本的消息类型"
-        val info: ItemAdapterPositionInfo = getCurrentPositionInfo()
+        val info: ItemAdapterPositionInfo = getCurrentPositionInfo(bean)
         if (info.isFirst) {
             text += "，整个列表第一个"
         }

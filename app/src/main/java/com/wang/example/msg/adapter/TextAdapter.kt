@@ -26,7 +26,7 @@ class TextAdapter : OneContainerItemAdapter<ViewBinding, TextBean>() {
     ) {
         val tv: TextView = holder.itemView as TextView
         var text = "这是文字：" + bean.textInfo.text
-        val info: ItemAdapterPositionInfo = getCurrentPositionInfo()
+        val info: ItemAdapterPositionInfo = getCurrentPositionInfo(bean)
         if (info.isFirst) {
             text += "，整个列表第一个"
         }

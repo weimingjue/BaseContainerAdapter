@@ -19,7 +19,7 @@ class WaitPayOrderAdapter : OneContainerItemAdapter<AdapterMsgWaitPayOrderBindin
         bean: OrderBean
     ) {
         var text = "列表状态："
-        val info = getCurrentPositionInfo()
+        val info = getCurrentPositionInfo(bean)
         if (info.isFirst) {
             text += "整个列表第一个"
         }

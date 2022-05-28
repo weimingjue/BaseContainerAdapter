@@ -1,6 +1,5 @@
 package com.wang.example.msg.adapter
 
-import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.appcompat.widget.AppCompatTextView
@@ -8,7 +7,6 @@ import androidx.viewbinding.ViewBinding
 import com.wang.container.adapter.OneContainerItemAdapter
 import com.wang.container.bean.ItemAdapterPositionInfo
 import com.wang.container.holder.BaseViewHolder
-import com.wang.container.interfaces.OnItemClickListener
 import com.wang.example.msg.bean.TextBean
 import com.wang.example.utils.toast
 
@@ -37,11 +35,8 @@ class TextAdapter : OneContainerItemAdapter<ViewBinding, TextBean>() {
     }
 
     init {
-        setOnItemClickListener(object : OnItemClickListener<TextBean> {
-            override fun onItemClick(view: View, relativePosition: Int) {
-                val bean = getCurrentBean(view)
-                "您点击了文字：${bean.textInfo.text}，绝对位置：${getViewHolder(view).commonPosition}".toast()
-            }
-        })
+        setOnItemClickListener { _, _, bean, vh, _, _ ->
+            "您点击了文字：${bean.textInfo.text}，绝对位置：${vh.commonPosition}".toast()
+        }
     }
 }

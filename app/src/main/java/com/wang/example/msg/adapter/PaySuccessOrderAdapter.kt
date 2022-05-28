@@ -1,6 +1,5 @@
 package com.wang.example.msg.adapter
 
-import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.appcompat.widget.AppCompatTextView
@@ -8,7 +7,6 @@ import androidx.viewbinding.ViewBinding
 import com.wang.container.adapter.OneContainerItemAdapter
 import com.wang.container.bean.ItemAdapterPositionInfo
 import com.wang.container.holder.BaseViewHolder
-import com.wang.container.interfaces.OnItemClickListener
 import com.wang.example.msg.bean.OrderBean
 import com.wang.example.utils.toast
 
@@ -38,11 +36,8 @@ class PaySuccessOrderAdapter : OneContainerItemAdapter<ViewBinding, OrderBean>()
     }
 
     init {
-        setOnItemClickListener(object : OnItemClickListener<OrderBean> {
-            override fun onItemClick(view: View, relativePosition: Int) {
-                val bean = getCurrentBean(view)
-                "您点击了支付成功订单，订单号：${bean.orderInfo.orderNo}".toast()
-            }
-        })
+        setOnItemClickListener { _, _, bean, _, _, _ ->
+            "您点击了支付成功订单，订单号：${bean.orderInfo.orderNo}".toast()
+        }
     }
 }

@@ -17,6 +17,7 @@ import com.wang.container.bean.IContainerBean
 import com.wang.container.bean.ItemAdapterPositionInfo
 import com.wang.container.helper.BaseListAdapterHelper
 import com.wang.container.holder.BaseViewHolder
+import com.wang.container.interfaces.DefOnItemClickListener
 import com.wang.container.interfaces.IListAdapter
 import com.wang.container.interfaces.OnItemClickListener
 import com.wang.container.observer.IContainerObserver
@@ -384,15 +385,60 @@ class BaseContainerAdapter<BEAN : IContainerBean> @JvmOverloads constructor(list
     override val list = listHelper.list
 
     /**
+     * 建议使用[setOnItemClickListener]、[setOnItemLongClickListener]
+     *
+     * 自定义点击效果，包括点击长按等，需要熟悉[OnItemClickListener]类
      * 这个回调和子adapter的事件回调都会被调用（这里先调，子adapter后调）
      *
      * 注意同样逻辑别写重复了
      * 如果没有收到回调请检查你的adapter有没有对[RecyclerView.ViewHolder.itemView]设置了点击事件
      *
-     * position为相对position（绝对的没啥用处），想获得绝对位置[getAbsPosition]
+     * position为相对position，想获得绝对位置[BaseViewHolder.commonPosition]
      */
     override fun setOnItemClickListener(listener: OnItemClickListener<BEAN>?) {
         onItemClickListener = listener
+    }
+
+    /**
+     * 点击回调
+     *
+     * 注意事项同上
+     */
+    fun setOnItemClickListener(
+        clickListener: ((
+            view: View,
+            relativePosition: Int,
+            currentBean: BEAN,
+            vh: BaseViewHolder<*>,
+            itemAdapter: BaseContainerItemAdapter<*>,
+            containerAdapter: BaseContainerAdapter<*>
+        ) -> Unit)?
+    ) {
+        val defListener =
+            onItemClickListener as? DefOnItemClickListener<BEAN> ?: DefOnItemClickListener()
+        defListener.onItemClick = clickListener
+        setOnItemClickListener(defListener)
+    }
+
+    /**
+     * 长按回调
+     *
+     * 注意事项同上
+     */
+    fun setOnItemLongClickListener(
+        longClickListener: ((
+            view: View,
+            relativePosition: Int,
+            currentBean: BEAN,
+            vh: BaseViewHolder<*>,
+            itemAdapter: BaseContainerItemAdapter<*>,
+            containerAdapter: BaseContainerAdapter<*>
+        ) -> Boolean)?
+    ) {
+        val defListener =
+            onItemClickListener as? DefOnItemClickListener<BEAN> ?: DefOnItemClickListener()
+        defListener.onItemLongClick = longClickListener
+        setOnItemClickListener(defListener)
     }
 
     override fun getOnItemClickListener() = onItemClickListener

@@ -11,7 +11,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.wang.container.BaseContainerAdapter
-import com.wang.container.interfaces.OnItemClickListener
 import com.wang.example.msg.adapter.*
 import com.wang.example.msg.bean.BaseMsgBean
 import com.wang.example.msg.bean.BaseMsgBean.Companion.formatListData
@@ -73,14 +72,12 @@ class MainActivity : AppCompatActivity() {
         baseAdapter.setListAndNotifyDataSetChanged(newList)
 
         //和子adapter的事件都调用会触发，注意自己的逻辑别和子adapter重复
-        baseAdapter.setOnItemClickListener(object : OnItemClickListener<BaseMsgBean> {
-            override fun onItemClick(view: View, relativePosition: Int) {
-                val absPosition = getViewHolder(view).commonPosition
-                val listPosition = getViewHolder(view).listPosition
-                //                absPosition = baseAdapter.getAbsPosition(getCurrentBean(view), position);//一个效果
-                Log.d(TAG, "全局点击事件，绝对位置: $absPosition，list的position：$listPosition")
-            }
-        })
+        baseAdapter.setOnItemClickListener { _, _, _, vh, _, _ ->
+            val absPosition = vh.commonPosition
+            val listPosition = vh.listPosition
+            //                absPosition = baseAdapter.getAbsPosition(getCurrentBean(view), position);//一个效果
+            Log.d(TAG, "全局点击事件，绝对位置: $absPosition，list的position：$listPosition")
+        }
         mRv!!.adapter = baseAdapter
         mBaseAdapter = baseAdapter
     }

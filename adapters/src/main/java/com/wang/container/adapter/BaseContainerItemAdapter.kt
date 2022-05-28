@@ -10,6 +10,7 @@ import com.wang.container.BaseContainerAdapter
 import com.wang.container.R
 import com.wang.container.bean.IContainerBean
 import com.wang.container.holder.BaseViewHolder
+import com.wang.container.interfaces.DefOnItemClickListener
 import com.wang.container.interfaces.OnItemClickListener
 import com.wang.container.observer.IContainerObserver
 
@@ -60,9 +61,46 @@ abstract class BaseContainerItemAdapter<BEAN : IContainerBean> {
         onBindViewHolder(holder, currentBean, position)
     }
 
+    /**
+     * 建议使用[setOnItemClickListener]、[setOnItemLongClickListener]
+     *
+     * 自定义点击效果，包括点击长按等，需要熟悉[OnItemClickListener]类
+     */
     open fun setOnItemClickListener(listener: OnItemClickListener<BEAN>?) {
         wrapListener.listener = listener
         notifyDataSetChanged()
+    }
+
+    open fun setOnItemClickListener(
+        clickListener: ((
+            view: View,
+            relativePosition: Int,
+            currentBean: BEAN,
+            vh: BaseViewHolder<*>,
+            itemAdapter: BaseContainerItemAdapter<*>,
+            containerAdapter: BaseContainerAdapter<*>
+        ) -> Unit)?
+    ) {
+        val defListener =
+            wrapListener.listener as? DefOnItemClickListener<BEAN> ?: DefOnItemClickListener()
+        defListener.onItemClick = clickListener
+        setOnItemClickListener(defListener)
+    }
+
+    open fun setOnItemLongClickListener(
+        longClickListener: ((
+            view: View,
+            relativePosition: Int,
+            currentBean: BEAN,
+            vh: BaseViewHolder<*>,
+            itemAdapter: BaseContainerItemAdapter<*>,
+            containerAdapter: BaseContainerAdapter<*>
+        ) -> Boolean)?
+    ) {
+        val defListener =
+            wrapListener.listener as? DefOnItemClickListener<BEAN> ?: DefOnItemClickListener()
+        defListener.onItemLongClick = longClickListener
+        setOnItemClickListener(defListener)
     }
 
     open fun getOnItemClickListener(): OnItemClickListener<BEAN>? = wrapListener

@@ -4,6 +4,7 @@ import android.view.View
 import androidx.annotation.CallSuper
 import com.wang.container.BaseContainerAdapter
 import com.wang.container.R
+import com.wang.container.adapter.BaseContainerItemAdapter
 import com.wang.container.bean.IContainerBean
 
 /**
@@ -35,6 +36,14 @@ interface OnItemClickListener<BEAN : IContainerBean> : IItemClick {
     @CallSuper
     fun getCurrentBean(view: View): BEAN {
         return view.getTag(R.id.tag_view_bean) as BEAN
+    }
+
+    /**
+     * 获取当前view所在的adapter
+     */
+    @CallSuper
+    fun getAdapter(view: View): BaseContainerItemAdapter<*> {
+        return view.getTag(R.id.tag_view_adapter) as BaseContainerItemAdapter<*>
     }
 
     /**

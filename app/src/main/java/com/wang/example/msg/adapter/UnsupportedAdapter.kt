@@ -41,6 +41,15 @@ class UnsupportedAdapter : OneContainerItemAdapter<ViewBinding, BaseMsgBean>() {
             override fun onItemClick(view: View, relativePosition: Int) {
                 "您点击了新版本的新类型".toast()
             }
+
+            override fun onItemLongClick(view: View, relativePosition: Int): Boolean {
+                val currentBean = getCurrentBean(view)
+                val vh = getViewHolder(view)
+                val itemAdapter = getAdapter(view)
+                val containerAdapter = getContainerAdapter(view)
+                "长按新版本类型，自定义点击示例".toast()
+                return true
+            }
         })
     }
 }

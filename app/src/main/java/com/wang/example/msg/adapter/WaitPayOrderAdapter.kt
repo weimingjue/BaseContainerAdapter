@@ -1,9 +1,7 @@
 package com.wang.example.msg.adapter
 
-import android.view.View
 import com.wang.container.adapter.OneContainerItemAdapter
 import com.wang.container.holder.BaseViewHolder
-import com.wang.container.interfaces.OnItemClickListener
 import com.wang.example.R
 import com.wang.example.databinding.AdapterMsgWaitPayOrderBinding
 import com.wang.example.msg.bean.OrderBean
@@ -36,13 +34,11 @@ class WaitPayOrderAdapter : OneContainerItemAdapter<AdapterMsgWaitPayOrderBindin
     }
 
     init {
-        setOnItemClickListener(object : OnItemClickListener<OrderBean> {
-            override fun onItemClick(view: View, relativePosition: Int) {
-                when (view.id) {
-                    R.id.bt_state -> "您点击了列表状态，绝对位置：${getViewHolder(view).commonPosition}".toast()
-                    else -> "您点击了待支付条目，绝对位置：${getViewHolder(view).commonPosition}".toast()
-                }
+        setOnItemClickListener { view, _, _, vh, _, _ ->
+            when (view.id) {
+                R.id.bt_state -> "您点击了列表状态，绝对位置：${vh.commonPosition}".toast()
+                else -> "您点击了待支付条目，绝对位置：${vh.commonPosition}".toast()
             }
-        })
+        }
     }
 }

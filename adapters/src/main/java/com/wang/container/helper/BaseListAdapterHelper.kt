@@ -89,5 +89,4 @@ class BaseListAdapterHelper<BEAN>(val adapter: IListAdapter<*, *, *>, dataList: 
                 }
             } //else相等忽略
         }
-
 }

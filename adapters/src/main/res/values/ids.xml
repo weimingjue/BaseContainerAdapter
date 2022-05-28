@@ -10,4 +10,6 @@
     <item name="tag_view_container" type="id" />
     <!--当前item子view点击tag-->
     <item name="tag_view_item_tag" type="id" />
+    <!--adapter 其他view点击的tag-->
+    <item name="tag_view_adapter_item_view_tag" type="id" />
 </resources>

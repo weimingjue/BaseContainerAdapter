@@ -20,10 +20,10 @@ class ImgAdapter : OneContainerItemAdapter<ViewBinding, ImgBean>() {
 
     override fun onBindChildViewHolder(
         holder: BaseViewHolder<ViewBinding>,
-        bean: ImgBean
+        currentBean: ImgBean
     ) {
         val iv = holder.itemView as ImageView
-        iv.setImageResource(bean.imgInfo.imgRes)
+        iv.setImageResource(currentBean.imgInfo.imgRes)
     }
 
     init {

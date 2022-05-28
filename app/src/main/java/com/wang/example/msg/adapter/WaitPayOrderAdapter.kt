@@ -14,10 +14,10 @@ class WaitPayOrderAdapter : OneContainerItemAdapter<AdapterMsgWaitPayOrderBindin
 
     override fun onBindChildViewHolder(
         holder: BaseViewHolder<AdapterMsgWaitPayOrderBinding>,
-        bean: OrderBean
+        currentBean: OrderBean
     ) {
         var text = "列表状态："
-        val info = getCurrentPositionInfo(bean)
+        val info = getCurrentPositionInfo(currentBean)
         if (info.isFirst) {
             text += "整个列表第一个"
         }
@@ -28,9 +28,9 @@ class WaitPayOrderAdapter : OneContainerItemAdapter<AdapterMsgWaitPayOrderBindin
             text += "列表中间"
         }
         holder.vb.btState.text = text
-        holder.vb.tvOrderNo.text = "订单号：${bean.orderInfo.orderNo}"
-        holder.vb.tvOrderName.text = "订单名称：${bean.orderInfo.orderName}"
-        setItemViewClickWithTag(holder.vb.btState, holder, TAG_CLICK_STATE)
+        holder.vb.tvOrderNo.text = "订单号：${currentBean.orderInfo.orderNo}"
+        holder.vb.tvOrderName.text = "订单名称：${currentBean.orderInfo.orderName}"
+        addItemViewClickWithTag(holder.vb.btState, holder, TAG_CLICK_STATE)
     }
 
     init {

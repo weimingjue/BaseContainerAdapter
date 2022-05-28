@@ -14,25 +14,32 @@ interface IContainerObserver {
     fun notifyDataSetChanged()
 
     /**
-     * @param position 就是item的position（我自己会计算绝对位置）
+     * @param relativePosition 就是item的position（我自己会计算绝对位置）
      * @param bean     list的bean数据,没有bean的话无法确定位置
      */
-    fun notifyItemChanged(position: Int, bean: IContainerBean) {
-        notifyItemChanged(position, 1, bean)
+    fun notifyItemChanged(relativePosition: Int, bean: IContainerBean) {
+        notifyItemChanged(relativePosition, 1, bean)
     }
 
-    fun notifyItemChanged(positionStart: Int, itemCount: Int, bean: IContainerBean)
-    fun notifyItemInserted(position: Int, bean: IContainerBean) {
-        notifyItemInserted(position, 1, bean)
+    fun notifyItemChanged(relativePositionStart: Int, itemCount: Int, bean: IContainerBean)
+
+    fun notifyItemInserted(relativePosition: Int, bean: IContainerBean) {
+        notifyItemInserted(relativePosition, 1, bean)
     }
 
-    fun notifyItemInserted(positionStart: Int, itemCount: Int, bean: IContainerBean)
-    fun notifyItemMoved(fromPosition: Int, toPosition: Int, bean: IContainerBean)
-    fun notifyItemRemoved(position: Int, bean: IContainerBean) {
-        notifyItemRemoved(position, 1, bean)
+    fun notifyItemInserted(relativePositionStart: Int, itemCount: Int, bean: IContainerBean)
+
+    fun notifyItemMoved(
+        relativeFromPosition: Int,
+        relativePositionToPosition: Int,
+        bean: IContainerBean
+    )
+
+    fun notifyItemRemoved(relativePosition: Int, bean: IContainerBean) {
+        notifyItemRemoved(relativePosition, 1, bean)
     }
 
-    fun notifyItemRemoved(positionStart: Int, itemCount: Int, bean: IContainerBean)
+    fun notifyItemRemoved(relativePositionStart: Int, itemCount: Int, bean: IContainerBean)
 
     /**
      * 当条目点击时调用

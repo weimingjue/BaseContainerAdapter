@@ -26,17 +26,38 @@ interface IAdapter<LISTENER : IItemClick> {
      * @param clickTag 由于id不便辨识和使用，在adapter中声明tag更便于查看和修改
      */
     @CallSuper
-    fun setItemViewClickWithTag(view: View, holder: BaseViewHolder<*>, clickTag: String) {
-        //view.setTag(R.id.tag_view_holder, holder.itemView.getTag(R.id.tag_view_holder));
-        view.setTag(R.id.tag_view_holder, holder)
-        view.setTag(R.id.tag_view_bean, holder.itemView.getTag(R.id.tag_view_bean))
-        //view.setTag(R.id.tag_view_adapter, holder.itemView.getTag(R.id.tag_view_adapter));
-        view.setTag(R.id.tag_view_adapter, this)
-        view.setTag(R.id.tag_view_container, holder.itemView.getTag(R.id.tag_view_container))
-        if (view !is RecyclerView) {
+    fun addItemViewClickWithTag(view: View, holder: BaseViewHolder<*>, clickTag: String) {
+        setItemViewTag(view, holder, clickTag)
+        if (view !is RecyclerView) {//RecycleView暂不支持点击事件，如有自定义请直接调用下面2个方法
             view.setOnClickListener(getOnItemClickListener())
             view.setOnLongClickListener(getOnItemClickListener())
         }
+    }
+
+    /**
+     * 直接调用里面view的点击
+     */
+    @CallSuper
+    fun dispatchItemViewClickWithTag(view: View, holder: BaseViewHolder<*>, clickTag: String) {
+        setItemViewTag(view, holder, clickTag)
+        getOnItemClickListener()?.onClick(view)
+    }
+
+    /**
+     * 直接调用里面view的长按
+     */
+    @CallSuper
+    fun dispatchItemViewLongClickWithTag(view: View, holder: BaseViewHolder<*>, clickTag: String) {
+        setItemViewTag(view, holder, clickTag)
+        getOnItemClickListener()?.onLongClick(view)
+    }
+
+    private fun setItemViewTag(view: View, holder: BaseViewHolder<*>, clickTag: String) {
+        view.setTag(R.id.tag_view_holder, holder)
+        view.setTag(R.id.tag_view_bean, holder.itemView.getTag(R.id.tag_view_bean))
+        view.setTag(R.id.tag_view_adapter, this)
+        view.setTag(R.id.tag_view_container, holder.itemView.getTag(R.id.tag_view_container))
+        view.setTag(R.id.tag_view_adapter_item_view_tag, clickTag)
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////

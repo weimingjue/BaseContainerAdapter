@@ -27,6 +27,25 @@ class DefOnItemClickListener<BEAN : IContainerBean> : OnItemClickListener<BEAN> 
         containerAdapter: BaseContainerAdapter<*>
     ) -> Boolean)? = null
 
+    var onItemViewClickWithTag: ((
+        view: View,
+        relativePosition: Int,
+        currentBean: BEAN,
+        vh: BaseViewHolder<*>,
+        itemAdapter: BaseContainerItemAdapter<*>,
+        containerAdapter: BaseContainerAdapter<*>,
+        tag: String
+    ) -> Unit)? = null
+    var onItemViewLongClickWithTag: ((
+        view: View,
+        relativePosition: Int,
+        currentBean: BEAN,
+        vh: BaseViewHolder<*>,
+        itemAdapter: BaseContainerItemAdapter<*>,
+        containerAdapter: BaseContainerAdapter<*>,
+        tag: String
+    ) -> Boolean)? = null
+
     override fun onItemClick(view: View, relativePosition: Int) {
         onItemClick?.invoke(
             view,
@@ -46,6 +65,35 @@ class DefOnItemClickListener<BEAN : IContainerBean> : OnItemClickListener<BEAN> 
             getViewHolder(view),
             getAdapter(view),
             getContainerAdapter(view)
+        ) ?: false
+    }
+
+    override fun onItemViewClickWithTag(view: View, relativePosition: Int, tag: String) {
+        super.onItemViewClickWithTag(view, relativePosition, tag)
+        onItemViewClickWithTag?.invoke(
+            view,
+            relativePosition,
+            getCurrentBean(view),
+            getViewHolder(view),
+            getAdapter(view),
+            getContainerAdapter(view),
+            tag
+        )
+    }
+
+    override fun onItemViewLongClickWithTag(
+        view: View,
+        relativePosition: Int,
+        tag: String
+    ): Boolean {
+        return onItemViewLongClickWithTag?.invoke(
+            view,
+            relativePosition,
+            getCurrentBean(view),
+            getViewHolder(view),
+            getAdapter(view),
+            getContainerAdapter(view),
+            tag
         ) ?: false
     }
 }

@@ -89,27 +89,31 @@ interface IListAdapter<BEANS, DB : ViewBinding, LISTENER : IItemClick> : IAdapte
      *
      * @throws IndexOutOfBoundsException 不用多说吧
      */
-    fun get(listPosition: Int): BEANS {
+    fun getItemData(listPosition: Int): BEANS {
         return list[listPosition]
+    }
+
+    fun getItemDataOrNull(listPosition: Int): BEANS? {
+        return list.getOrNull(listPosition)
     }
 
     /**
      * 清空list,不刷新adapter
      */
-    fun clear() {
+    fun clearList() {
         list.clear()
     }
 
     /**
      * 添加全部条目,不刷新adapter
      */
-    fun addAll(addList: Collection<BEANS>?) {
+    fun addAllData(addList: Collection<BEANS>?) {
         if (addList != null && list !== addList) {
             list.addAll(addList)
         }
     }
 
-    fun size(): Int {
+    fun listSize(): Int {
         return list.size
     }
 

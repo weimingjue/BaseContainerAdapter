@@ -2,7 +2,6 @@ package com.wang.container.adapter
 
 import android.view.View
 import android.view.ViewGroup
-import androidx.annotation.CallSuper
 import androidx.annotation.IntRange
 import androidx.collection.ArraySet
 import androidx.recyclerview.widget.RecyclerView
@@ -50,16 +49,19 @@ abstract class BaseContainerItemAdapter<BEAN : IContainerBean> {
     }
 
     /**
-     * @param position 属于该adapter的position
+     * @param relativePosition 属于该adapter的position
      * 如：[getItemCount]=1(每个bean只对应一条数据)，这个position一直是0（就是没用的意思）
      * 如：[getItemCount]=xx(你的bean里面还有自己的list)，这个position就是相对的值
      */
-    fun bindViewHolder(holder: BaseViewHolder<*>, currentBean: BEAN, position: Int) {
+    fun bindViewHolder(holder: BaseViewHolder<*>, currentBean: BEAN, relativePosition: Int) {
         holder.itemView.setTag(R.id.tag_view_bean, currentBean)
         holder.itemView.setOnClickListener(wrapListener)
         holder.itemView.setOnLongClickListener(wrapListener)
-        onBindViewHolder(holder, currentBean, position)
+        onBindViewHolder(holder, currentBean, relativePosition)
     }
+
+    private fun getSuggestDefClickListener() =
+        wrapListener.listener as? DefOnItemClickListener<BEAN> ?: DefOnItemClickListener()
 
     /**
      * 建议使用[setOnItemClickListener]、[setOnItemLongClickListener]
@@ -81,10 +83,7 @@ abstract class BaseContainerItemAdapter<BEAN : IContainerBean> {
             containerAdapter: BaseContainerAdapter<*>
         ) -> Unit)?
     ) {
-        val defListener =
-            wrapListener.listener as? DefOnItemClickListener<BEAN> ?: DefOnItemClickListener()
-        defListener.onItemClick = clickListener
-        setOnItemClickListener(defListener)
+        setOnItemClickListener(getSuggestDefClickListener().apply { onItemClick = clickListener })
     }
 
     open fun setOnItemLongClickListener(
@@ -97,10 +96,47 @@ abstract class BaseContainerItemAdapter<BEAN : IContainerBean> {
             containerAdapter: BaseContainerAdapter<*>
         ) -> Boolean)?
     ) {
-        val defListener =
-            wrapListener.listener as? DefOnItemClickListener<BEAN> ?: DefOnItemClickListener()
-        defListener.onItemLongClick = longClickListener
-        setOnItemClickListener(defListener)
+        setOnItemClickListener(getSuggestDefClickListener().apply {
+            onItemLongClick = longClickListener
+        })
+    }
+
+    /**
+     * adapter里的view设置tag后（使用[addItemViewClickWithTag]、[dispatchItemViewClickWithTag]）点击会回调此方法
+     */
+    open fun setOnItemViewClickListenerWithTag(
+        clickListener: ((
+            view: View,
+            relativePosition: Int,
+            currentBean: BEAN,
+            vh: BaseViewHolder<*>,
+            itemAdapter: BaseContainerItemAdapter<*>,
+            containerAdapter: BaseContainerAdapter<*>,
+            tag: String
+        ) -> Unit)?
+    ) {
+        setOnItemClickListener(getSuggestDefClickListener().apply {
+            onItemViewClickWithTag = clickListener
+        })
+    }
+
+    /**
+     * adapter里的view设置tag后（使用[addItemViewClickWithTag]、[dispatchItemViewLongClickWithTag]）长按会回调此方法
+     */
+    open fun setOnItemViewLongClickListenerWithTag(
+        longClickListener: ((
+            view: View,
+            relativePosition: Int,
+            currentBean: BEAN,
+            vh: BaseViewHolder<*>,
+            itemAdapter: BaseContainerItemAdapter<*>,
+            containerAdapter: BaseContainerAdapter<*>,
+            tag: String
+        ) -> Boolean)?
+    ) {
+        setOnItemClickListener(getSuggestDefClickListener().apply {
+            onItemViewLongClickWithTag = longClickListener
+        })
     }
 
     open fun getOnItemClickListener(): OnItemClickListener<BEAN>? = wrapListener
@@ -182,6 +218,14 @@ abstract class BaseContainerItemAdapter<BEAN : IContainerBean> {
             return listener?.onItemLongClick(view, relativePosition) ?: false
         }
     }
+
+    protected fun setItemViewTag(view: View, holder: BaseViewHolder<*>, clickTag: String) {
+        view.setTag(R.id.tag_view_holder, holder)
+        view.setTag(R.id.tag_view_bean, holder.itemView.getTag(R.id.tag_view_bean))
+        view.setTag(R.id.tag_view_adapter, this)
+        view.setTag(R.id.tag_view_container, holder.itemView.getTag(R.id.tag_view_container))
+        view.setTag(R.id.tag_view_adapter_item_view_tag, clickTag)
+    }
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // 以下是经常用到或重写的方法
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -224,16 +268,15 @@ abstract class BaseContainerItemAdapter<BEAN : IContainerBean> {
     /**
      * 想取绝对position见[BaseContainerAdapter.getAbsPosition]
      *
-     * @param position 属于该adapter的position
+     * @param relativePosition 属于该adapter的position
      * 如：[getItemCount]=1(每个bean只对应一条数据)，这个position一直是0（就是没用的意思）
      * 如：[getItemCount]=xx(你的bean里面还有自己的list)，这个position就是相对的值
      */
     protected abstract fun onBindViewHolder(
         holder: BaseViewHolder<*>,
         currentBean: BEAN,
-        position: Int,
+        relativePosition: Int,
     )
-
 
     /**
      * 给view设置点击事件到[setOnItemClickListener]中
@@ -242,17 +285,27 @@ abstract class BaseContainerItemAdapter<BEAN : IContainerBean> {
      *
      * @param clickTag 由于id不便辨识和使用，在adapter中声明tag更便于查看和修改
      */
-    @CallSuper
-    fun setItemViewClickWithTag(view: View, holder: BaseViewHolder<*>, clickTag: String) {
-        //view.setTag(R.id.tag_view_holder, holder.itemView.getTag(R.id.tag_view_holder));
-        view.setTag(R.id.tag_view_holder, holder)
-        view.setTag(R.id.tag_view_bean, holder.itemView.getTag(R.id.tag_view_bean))
-        //view.setTag(R.id.tag_view_adapter, holder.itemView.getTag(R.id.tag_view_adapter));
-        view.setTag(R.id.tag_view_adapter, this)
-        view.setTag(R.id.tag_view_container, holder.itemView.getTag(R.id.tag_view_container))
-        if (view !is RecyclerView) {
+    protected fun addItemViewClickWithTag(view: View, holder: BaseViewHolder<*>, clickTag: String) {
+        setItemViewTag(view, holder, clickTag)
+        if (view !is RecyclerView) {//RecycleView暂不支持点击事件，如有自定义请直接调用下面2个方法
             view.setOnClickListener(getOnItemClickListener())
             view.setOnLongClickListener(getOnItemClickListener())
         }
+    }
+
+    /**
+     * 直接调用里面view的点击
+     */
+    fun dispatchItemViewClickWithTag(view: View, holder: BaseViewHolder<*>, clickTag: String) {
+        setItemViewTag(view, holder, clickTag)
+        getOnItemClickListener()?.onClick(view)
+    }
+
+    /**
+     * 直接调用里面view的长按
+     */
+    fun dispatchItemViewLongClickWithTag(view: View, holder: BaseViewHolder<*>, clickTag: String) {
+        setItemViewTag(view, holder, clickTag)
+        getOnItemClickListener()?.onLongClick(view)
     }
 }

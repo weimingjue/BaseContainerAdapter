@@ -35,8 +35,8 @@ class MainActivity : AppCompatActivity() {
         }
         findViewById<View>(R.id.tv_delete).setOnClickListener { _ ->
             mBaseAdapter?.let { it ->
-                val random = (Math.random() * it.size().coerceAtMost(5)).toInt()
-                if (random < it.size()) {
+                val random = (Math.random() * it.listSize().coerceAtMost(5)).toInt()
+                if (random < it.listSize()) {
                     it.list.removeAt(random)
                     //这里需要注意，header的存在
                     it.notifyItemRemoved(random + it.headerViewCount)
@@ -44,7 +44,7 @@ class MainActivity : AppCompatActivity() {
 
                     //remove动画不会改变第一条和最后一条的状态，所以带header、footer提示的话也要同步刷新
                     it.notifyItemChanged(it.headerViewCount)
-                    it.notifyItemChanged(it.size() + it.headerViewCount - 1)
+                    it.notifyItemChanged(it.listSize() + it.headerViewCount - 1)
                 }
             }
         }
@@ -78,7 +78,7 @@ class MainActivity : AppCompatActivity() {
             //                absPosition = baseAdapter.getAbsPosition(getCurrentBean(view), position);//一个效果
             Log.d(TAG, "全局点击事件，绝对位置: $absPosition，list的position：$listPosition")
         }
-        mRv!!.adapter = baseAdapter
+        mRv?.adapter = baseAdapter
         mBaseAdapter = baseAdapter
     }
 

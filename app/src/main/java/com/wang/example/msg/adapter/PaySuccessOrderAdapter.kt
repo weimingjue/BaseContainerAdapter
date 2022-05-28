@@ -20,12 +20,13 @@ class PaySuccessOrderAdapter : OneContainerItemAdapter<ViewBinding, OrderBean>()
 
     override fun onBindChildViewHolder(
         holder: BaseViewHolder<ViewBinding>,
-        bean: OrderBean
+        currentBean: OrderBean
     ) {
         val tv: TextView = holder.itemView as TextView
-        var text = ("支付成功，订单号：" + bean.orderInfo.orderNo + "，订单名称" + bean.orderInfo.orderName
-                + "，物流：" + bean.orderInfo.otherOrderData.emsNo)
-        val info: ItemAdapterPositionInfo = getCurrentPositionInfo(bean)
+        var text =
+            ("支付成功，订单号：" + currentBean.orderInfo.orderNo + "，订单名称" + currentBean.orderInfo.orderName
+                    + "，物流：" + currentBean.orderInfo.otherOrderData.emsNo)
+        val info: ItemAdapterPositionInfo = getCurrentPositionInfo(currentBean)
         if (info.isFirst) {
             text += "，整个列表第一个"
         }

@@ -22,11 +22,11 @@ class UnsupportedAdapter : OneContainerItemAdapter<ViewBinding, BaseMsgBean>() {
 
     override fun onBindChildViewHolder(
         holder: BaseViewHolder<ViewBinding>,
-        bean: BaseMsgBean
+        currentBean: BaseMsgBean
     ) {
         val tv: TextView = holder.itemView as TextView
         var text = "这是新版本的消息类型"
-        val info: ItemAdapterPositionInfo = getCurrentPositionInfo(bean)
+        val info: ItemAdapterPositionInfo = getCurrentPositionInfo(currentBean)
         if (info.isFirst) {
             text += "，整个列表第一个"
         }

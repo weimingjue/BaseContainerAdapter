@@ -59,4 +59,16 @@ interface OnItemClickListener<BEAN : IContainerBean> : IItemClick {
     override fun onItemLongClick(view: View, relativePosition: Int): Boolean {
         return false
     }
+
+    override fun onItemViewClickWithTag(view: View, relativePosition: Int, tag: String) {
+        super.onItemViewClickWithTag(view, relativePosition, tag)
+    }
+
+    override fun onItemViewLongClickWithTag(
+        view: View,
+        relativePosition: Int,
+        tag: String
+    ): Boolean {
+        return super.onItemViewLongClickWithTag(view, relativePosition, tag)
+    }
 }

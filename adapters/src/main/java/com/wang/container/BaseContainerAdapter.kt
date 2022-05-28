@@ -65,26 +65,42 @@ class BaseContainerAdapter<BEAN : IContainerBean> @JvmOverloads constructor(list
             this@BaseContainerAdapter.notifyDataSetChanged()
         }
 
-        override fun notifyItemChanged(positionStart: Int, itemCount: Int, bean: IContainerBean) {
-            val newPosition = getAbsPosition(bean, positionStart)
+        override fun notifyItemChanged(
+            relativePositionStart: Int,
+            itemCount: Int,
+            bean: IContainerBean
+        ) {
+            val newPosition = getAbsPosition(bean, relativePositionStart)
             this@BaseContainerAdapter.notifyItemRangeChanged(newPosition, itemCount)
         }
 
-        override fun notifyItemInserted(positionStart: Int, itemCount: Int, bean: IContainerBean) {
-            val newPosition = getAbsPosition(bean, positionStart)
+        override fun notifyItemInserted(
+            relativePositionStart: Int,
+            itemCount: Int,
+            bean: IContainerBean
+        ) {
+            val newPosition = getAbsPosition(bean, relativePositionStart)
             this@BaseContainerAdapter.notifyItemRangeInserted(newPosition, itemCount)
         }
 
-        override fun notifyItemMoved(fromPosition: Int, toPosition: Int, bean: IContainerBean) {
-            val newPosition = getAbsPosition(bean, fromPosition)
+        override fun notifyItemMoved(
+            relativeFromPosition: Int,
+            relativePositionToPosition: Int,
+            bean: IContainerBean
+        ) {
+            val newPosition = getAbsPosition(bean, relativeFromPosition)
             this@BaseContainerAdapter.notifyItemMoved(
                 newPosition,
-                newPosition + (toPosition - fromPosition)
+                newPosition + (relativePositionToPosition - relativeFromPosition)
             )
         }
 
-        override fun notifyItemRemoved(positionStart: Int, itemCount: Int, bean: IContainerBean) {
-            val newPosition = getAbsPosition(bean, positionStart)
+        override fun notifyItemRemoved(
+            relativePositionStart: Int,
+            itemCount: Int,
+            bean: IContainerBean
+        ) {
+            val newPosition = getAbsPosition(bean, relativePositionStart)
             this@BaseContainerAdapter.notifyItemRangeRemoved(newPosition, itemCount)
         }
 
@@ -384,6 +400,9 @@ class BaseContainerAdapter<BEAN : IContainerBean> @JvmOverloads constructor(list
 
     override val list = listHelper.list
 
+    private fun getSuggestDefClickListener() =
+        onItemClickListener as? DefOnItemClickListener<BEAN> ?: DefOnItemClickListener()
+
     /**
      * 建议使用[setOnItemClickListener]、[setOnItemLongClickListener]
      *
@@ -414,10 +433,7 @@ class BaseContainerAdapter<BEAN : IContainerBean> @JvmOverloads constructor(list
             containerAdapter: BaseContainerAdapter<*>
         ) -> Unit)?
     ) {
-        val defListener =
-            onItemClickListener as? DefOnItemClickListener<BEAN> ?: DefOnItemClickListener()
-        defListener.onItemClick = clickListener
-        setOnItemClickListener(defListener)
+        setOnItemClickListener(getSuggestDefClickListener().apply { onItemClick = clickListener })
     }
 
     /**
@@ -435,10 +451,47 @@ class BaseContainerAdapter<BEAN : IContainerBean> @JvmOverloads constructor(list
             containerAdapter: BaseContainerAdapter<*>
         ) -> Boolean)?
     ) {
-        val defListener =
-            onItemClickListener as? DefOnItemClickListener<BEAN> ?: DefOnItemClickListener()
-        defListener.onItemLongClick = longClickListener
-        setOnItemClickListener(defListener)
+        setOnItemClickListener(getSuggestDefClickListener().apply {
+            onItemLongClick = longClickListener
+        })
+    }
+
+    /**
+     * adapter里的view设置tag后（使用[addItemViewClickWithTag]、[dispatchItemViewClickWithTag]）点击会回调此方法
+     */
+    open fun setOnItemViewClickListenerWithTag(
+        clickListener: ((
+            view: View,
+            relativePosition: Int,
+            currentBean: BEAN,
+            vh: BaseViewHolder<*>,
+            itemAdapter: BaseContainerItemAdapter<*>,
+            containerAdapter: BaseContainerAdapter<*>,
+            tag: String
+        ) -> Unit)?
+    ) {
+        setOnItemClickListener(getSuggestDefClickListener().apply {
+            onItemViewClickWithTag = clickListener
+        })
+    }
+
+    /**
+     * adapter里的view设置tag后（使用[addItemViewClickWithTag]、[dispatchItemViewLongClickWithTag]）长按会回调此方法
+     */
+    open fun setOnItemViewLongClickListenerWithTag(
+        longClickListener: ((
+            view: View,
+            relativePosition: Int,
+            currentBean: BEAN,
+            vh: BaseViewHolder<*>,
+            itemAdapter: BaseContainerItemAdapter<*>,
+            containerAdapter: BaseContainerAdapter<*>,
+            tag: String
+        ) -> Boolean)?
+    ) {
+        setOnItemClickListener(getSuggestDefClickListener().apply {
+            onItemViewLongClickWithTag = longClickListener
+        })
     }
 
     override fun getOnItemClickListener() = onItemClickListener

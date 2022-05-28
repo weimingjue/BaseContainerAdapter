@@ -24,7 +24,11 @@ abstract class OneContainerItemAdapter<VB : ViewBinding, BEAN : IContainerBean> 
         return onCreateChildViewHolder(parent)
     }
 
-    override fun onBindViewHolder(holder: BaseViewHolder<*>, currentBean: BEAN, position: Int) {
+    final override fun onBindViewHolder(
+        holder: BaseViewHolder<*>,
+        currentBean: BEAN,
+        relativePosition: Int
+    ) {
         onBindChildViewHolder(holder as BaseViewHolder<VB>, currentBean)
     }
 
@@ -54,8 +58,6 @@ abstract class OneContainerItemAdapter<VB : ViewBinding, BEAN : IContainerBean> 
 
     /**
      * 当然还有[getCurrentPositionInfo]
-     *
-     * @param bean 就是[getCurrentBean]
      */
-    protected abstract fun onBindChildViewHolder(holder: BaseViewHolder<VB>, bean: BEAN)
+    protected abstract fun onBindChildViewHolder(holder: BaseViewHolder<VB>, currentBean: BEAN)
 }

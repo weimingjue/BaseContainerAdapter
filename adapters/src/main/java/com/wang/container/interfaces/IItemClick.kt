@@ -13,12 +13,24 @@ import com.wang.container.holder.BaseViewHolder
 interface IItemClick : View.OnClickListener, OnLongClickListener {
     @CallSuper //一般不需要重写，所以加了此限制（如果真的不想调用super可以注解抑制掉错误）
     override fun onClick(view: View) {
-        onItemClick(view, getViewPosition(view))
+        val tag = getViewClickTag(view)
+        val position = getViewPosition(view)
+        if (tag == null) {
+            onItemClick(view, position)
+        } else {
+            onItemViewClickWithTag(view, position, tag)
+        }
     }
 
     @CallSuper
     override fun onLongClick(view: View): Boolean {
-        return onItemLongClick(view, getViewPosition(view))
+        val tag = getViewClickTag(view)
+        val position = getViewPosition(view)
+        return if (tag == null) {
+            onItemLongClick(view, position)
+        } else {
+            onItemViewLongClickWithTag(view, position, tag)
+        }
     }
 
     /**
@@ -32,6 +44,14 @@ interface IItemClick : View.OnClickListener, OnLongClickListener {
     @CallSuper
     fun getViewHolder(view: View): BaseViewHolder<*> {
         return view.getTag(R.id.tag_view_holder) as BaseViewHolder<*>
+    }
+
+    /**
+     * 获取当前view点击时的tag
+     */
+    @CallSuper
+    fun getViewClickTag(view: View): String? {
+        return view.getTag(R.id.tag_view_adapter_item_view_tag) as? String
     }
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // 回调方法
@@ -47,6 +67,21 @@ interface IItemClick : View.OnClickListener, OnLongClickListener {
      * item被长按时
      */
     fun onItemLongClick(view: View, position: Int): Boolean {
+        return false
+    }
+
+    /**
+     * item里的view被点击时
+     *
+     * @param position 属于该adapter的position
+     */
+    fun onItemViewClickWithTag(view: View, position: Int, tag: String) {
+    }
+
+    /**
+     * item里的view被长按时
+     */
+    fun onItemViewLongClickWithTag(view: View, position: Int, tag: String): Boolean {
         return false
     }
 }

@@ -2,7 +2,6 @@ package com.wang.example.msg.adapter
 
 import com.wang.container.adapter.OneContainerItemAdapter
 import com.wang.container.holder.BaseViewHolder
-import com.wang.example.R
 import com.wang.example.databinding.AdapterMsgWaitPayOrderBinding
 import com.wang.example.msg.bean.OrderBean
 import com.wang.example.utils.toast
@@ -34,10 +33,15 @@ class WaitPayOrderAdapter : OneContainerItemAdapter<AdapterMsgWaitPayOrderBindin
     }
 
     init {
-        setOnItemClickListener { view, _, _, vh, _, _ ->
-            when (view.id) {
-                R.id.bt_state -> "您点击了列表状态，绝对位置：${vh.commonPosition}".toast()
-                else -> "您点击了待支付条目，绝对位置：${vh.commonPosition}".toast()
+        setOnItemClickListener { _, _, _, vh, _, _ ->
+            "您点击了待支付条目，绝对位置：${vh.commonPosition}".toast()
+        }
+
+        setOnItemViewClickListenerWithTag { _, _, _, vh, _, _, tag ->
+            when (tag) {
+                TAG_CLICK_STATE -> {
+                    "您点击了列表按钮，绝对位置：${vh.commonPosition}".toast()
+                }
             }
         }
     }

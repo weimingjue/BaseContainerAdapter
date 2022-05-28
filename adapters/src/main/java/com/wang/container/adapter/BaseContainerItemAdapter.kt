@@ -15,7 +15,9 @@ import com.wang.container.observer.IContainerObserver
 
 /**
  * 和普通adapter操作一样，加了个currentBean来确定当前adapter的数据
- * 所有的position均为相对的position，获取adapter在整个RecyclerView的绝对position见[getCurrentPositionInfo]
+ * 所有的position均为相对position
+ * 获取adapter在整个RecyclerView的绝对position见[getCurrentPositionInfo]或[BaseViewHolder.commonPosition]、[BaseViewHolder.listPosition]
+ * 简单的只有一个条目见[OneContainerItemAdapter]
  */
 abstract class BaseContainerItemAdapter<BEAN : IContainerBean> {
     private val observers = ArraySet<IContainerObserver>()
@@ -198,6 +200,7 @@ abstract class BaseContainerItemAdapter<BEAN : IContainerBean> {
 
         override fun onClick(view: View) {
             observers.forEach { it.dispatchItemClicked(view) }
+            listener?.onClick(view)
             super.onClick(view)
         }
 
@@ -207,15 +210,13 @@ abstract class BaseContainerItemAdapter<BEAN : IContainerBean> {
                 state = state or it.dispatchItemLongClicked(view)
             }
             state = state or super.onLongClick(view)
+            listener?.let {
+                state = state or it.onLongClick(view)
+            }
             return state
         }
 
         override fun onItemClick(view: View, relativePosition: Int) {
-            listener?.onItemClick(view, relativePosition)
-        }
-
-        override fun onItemLongClick(view: View, relativePosition: Int): Boolean {
-            return listener?.onItemLongClick(view, relativePosition) ?: false
         }
     }
 
@@ -266,7 +267,7 @@ abstract class BaseContainerItemAdapter<BEAN : IContainerBean> {
     protected abstract fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder<*>
 
     /**
-     * 想取绝对position见[BaseContainerAdapter.getAbsPosition]
+     * 想取绝对position见[BaseContainerAdapter.getAbsPosition]或[BaseViewHolder.commonPosition]、[BaseViewHolder.listPosition]
      *
      * @param relativePosition 属于该adapter的position
      * 如：[getItemCount]=1(每个bean只对应一条数据)，这个position一直是0（就是没用的意思）

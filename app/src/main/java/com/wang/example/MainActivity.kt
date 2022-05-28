@@ -66,7 +66,7 @@ class MainActivity : AppCompatActivity() {
         headerView.setPadding(50, 50, 50, 50)
         baseAdapter.headerView = headerView
         baseAdapter.setFooterView(this, R.layout.adapter_main_footer)
-        baseAdapter.footerView!!.setOnClickListener { v: View? -> "你点击了footer".toast() }
+        baseAdapter.footerView?.setOnClickListener { v: View? -> "你点击了footer".toast() }
         val list = createMsgList() //模拟请求数据
         val newList = formatListData(list) //格式化数据
         baseAdapter.setListAndNotifyDataSetChanged(newList)
@@ -77,6 +77,14 @@ class MainActivity : AppCompatActivity() {
             val listPosition = vh.listPosition
             //                absPosition = baseAdapter.getAbsPosition(getCurrentBean(view), position);//一个效果
             Log.d(TAG, "全局点击事件，绝对位置: $absPosition，list的position：$listPosition")
+        }
+        baseAdapter.setOnItemViewLongClickListenerWithTag { _, _, _, vh, _, _, tag ->
+            when (tag) {
+                WaitPayOrderAdapter.TAG_CLICK_STATE -> {
+                    "你长按了绝对位置：${vh.commonPosition}里的按钮".toast()
+                }
+            }
+            true
         }
         mRv?.adapter = baseAdapter
         mBaseAdapter = baseAdapter

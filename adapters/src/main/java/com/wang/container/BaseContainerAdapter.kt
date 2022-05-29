@@ -543,8 +543,8 @@ class BaseContainerAdapter<BEAN : IContainerBean> @JvmOverloads constructor(list
                 return position + headerViewCount
             } else {
                 val itemAdapter =
-                    adaptersManager.getAdapter(bean.getBindAdapterClass()).castSuperAdapter()
-                position += itemAdapter.getItemCount(bean)
+                    adaptersManager.getAdapter(listBean.getBindAdapterClass()).castSuperAdapter()
+                position += itemAdapter.getItemCount(listBean)
             }
         }
         throw RuntimeException("在list中没有找到传入的bean对象$bean")

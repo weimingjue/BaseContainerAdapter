@@ -155,7 +155,7 @@ class BaseContainerAdapter<BEAN : IContainerBean> @JvmOverloads constructor(list
 
             fun onAdapterChanged() {
                 lastCachePositionInfo = null
-                internalLastCachePositionInfo?.absListPosition = -999
+                internalLastCachePositionInfo?.containerListIndex = -999
             }
         })
     }
@@ -185,7 +185,7 @@ class BaseContainerAdapter<BEAN : IContainerBean> @JvmOverloads constructor(list
                 val itemAdapter = info.itemAdapter.castSuperAdapter()
                 itemAdapter.bindViewHolder(
                     holder,
-                    list[info.absListPosition],
+                    list[info.containerListIndex],
                     info.itemRelativePosition
                 )
             }
@@ -219,7 +219,7 @@ class BaseContainerAdapter<BEAN : IContainerBean> @JvmOverloads constructor(list
         val info = getCacheItemPositionInfo(position, true)
         val itemAdapter = info.itemAdapter.castSuperAdapter()
         val itemType =
-            itemAdapter.getItemViewType(list[info.absListPosition], info.itemRelativePosition)
+            itemAdapter.getItemViewType(list[info.containerListIndex], info.itemRelativePosition)
         if (itemType <= TYPE_MIN || itemType >= TYPE_MAX) {
             throw RuntimeException("你adapter（" + itemAdapter.javaClass + "）的type必须在" + TYPE_MIN + "~" + TYPE_MAX + "之间，type：" + itemType)
         }
@@ -261,13 +261,13 @@ class BaseContainerAdapter<BEAN : IContainerBean> @JvmOverloads constructor(list
         absPosition: Int,
         internalRecycle: Boolean
     ): ItemAdapterPositionInfo {
-        val absListPosition = absPosition - headerViewCount
-
         //取缓存
         val cache = if (internalRecycle) internalLastCachePositionInfo else lastCachePositionInfo
-        if (cache?.absListPosition == absListPosition) {
+        if (cache?.absPosition == absPosition) {
             return cache
         }
+
+        val containerListIndex = absPosition - headerViewCount
 
         //itemAdapter的position=0时的真实位置
         var itemStartPosition = 0
@@ -277,19 +277,20 @@ class BaseContainerAdapter<BEAN : IContainerBean> @JvmOverloads constructor(list
             val itemCount = itemAdapter.getItemCount(bean)
             val nextStartPosition = itemStartPosition + itemCount
 
-            if (nextStartPosition > absListPosition) {
+            if (nextStartPosition > containerListIndex) {
                 //下一个adapter的位置比position大说明当前type就在这个adapter中
 
-                val itemPosition = absListPosition - itemStartPosition
+                val itemPosition = containerListIndex - itemStartPosition
 
                 //当前状态
-                val isFirst = absListPosition == 0
-                val isLast = absListPosition == listHelper.list.lastIndex
+                val isFirst = containerListIndex == 0
+                val isLast = containerListIndex == listHelper.list.lastIndex
 
                 if (internalRecycle) {
                     //内部使用则复用单独一个对象
                     val info = internalLastCachePositionInfo?.also {
-                        it.absListPosition = i
+                        it.absPosition = absPosition
+                        it.containerListIndex = i
                         it.itemRelativePosition = itemPosition
                         it.itemAdapter = itemAdapter
                         it.hasHeader = isHeaderView
@@ -297,7 +298,8 @@ class BaseContainerAdapter<BEAN : IContainerBean> @JvmOverloads constructor(list
                         it.isFirst = isFirst
                         it.isLast = isLast
                     } ?: ItemAdapterPositionInfo(
-                        absListPosition = i,
+                        absPosition = absPosition,
+                        containerListIndex = i,
                         itemPosition = itemPosition,
                         itemAdapter = itemAdapter,
                         hasHeader = isHeaderView,
@@ -309,7 +311,8 @@ class BaseContainerAdapter<BEAN : IContainerBean> @JvmOverloads constructor(list
                     return info
                 }
                 val info = ItemAdapterPositionInfo(
-                    absListPosition = i,
+                    absPosition = absPosition,
+                    containerListIndex = i,
                     itemPosition = itemPosition,
                     itemAdapter = itemAdapter,
                     hasHeader = isHeaderView,
@@ -587,7 +590,7 @@ class BaseContainerAdapter<BEAN : IContainerBean> @JvmOverloads constructor(list
                 val info = getCacheItemPositionInfo(position, true)
                 val itemAdapter = info.itemAdapter.castSuperAdapter()
                 return itemAdapter.getSpanSize(
-                    list[info.absListPosition],
+                    list[info.containerListIndex],
                     info.itemRelativePosition
                 )
             }

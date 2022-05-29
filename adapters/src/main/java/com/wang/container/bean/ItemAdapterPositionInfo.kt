@@ -3,7 +3,8 @@ package com.wang.container.bean
 import com.wang.container.adapter.BaseContainerItemAdapter
 
 class ItemAdapterPositionInfo(
-    absListPosition: Int,
+    absPosition: Int,
+    containerListIndex: Int,
     itemPosition: Int,
     itemAdapter: BaseContainerItemAdapter<*>,
     hasHeader: Boolean,
@@ -14,7 +15,13 @@ class ItemAdapterPositionInfo(
     /**
      * 绝对值，container的list position
      */
-    var absListPosition = absListPosition
+    var absPosition = absPosition
+        internal set
+
+    /**
+     * 绝对值，container的list position
+     */
+    var containerListIndex = containerListIndex
         internal set
 
     /**

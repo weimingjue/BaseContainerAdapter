@@ -151,35 +151,35 @@ abstract class BaseContainerItemAdapter<BEAN : IContainerBean> {
     }
 
     /**
-     * @param position 就是item的position（我自己会计算绝对位置）
+     * @param relativePosition 就是item的position（我自己会计算绝对位置）
      * @param bean     list的bean数据,没有bean的话无法确定位置
      */
-    open fun notifyItemChanged(position: Int, bean: BEAN) {
-        notifyItemChanged(position, 1, bean)
+    open fun notifyItemChanged(relativePosition: Int, bean: BEAN) {
+        notifyItemChanged(relativePosition, 1, bean)
     }
 
-    open fun notifyItemChanged(positionStart: Int, itemCount: Int, bean: BEAN) {
-        observers.forEach { it.notifyItemChanged(positionStart, itemCount, bean) }
+    open fun notifyItemChanged(relativePositionStart: Int, itemCount: Int, bean: BEAN) {
+        observers.forEach { it.notifyItemChanged(relativePositionStart, itemCount, bean) }
     }
 
-    open fun notifyItemInserted(position: Int, bean: BEAN) {
-        notifyItemInserted(position, 1, bean)
+    open fun notifyItemInserted(relativePosition: Int, bean: BEAN) {
+        notifyItemInserted(relativePosition, 1, bean)
     }
 
-    open fun notifyItemInserted(positionStart: Int, itemCount: Int, bean: BEAN) {
-        observers.forEach { it.notifyItemInserted(positionStart, itemCount, bean) }
+    open fun notifyItemInserted(relativePositionStart: Int, itemCount: Int, bean: BEAN) {
+        observers.forEach { it.notifyItemInserted(relativePositionStart, itemCount, bean) }
     }
 
-    open fun notifyItemMoved(fromPosition: Int, toPosition: Int, bean: BEAN) {
-        observers.forEach { it.notifyItemMoved(fromPosition, toPosition, bean) }
+    open fun notifyItemMoved(relativeFromPosition: Int, relativeToPosition: Int, bean: BEAN) {
+        observers.forEach { it.notifyItemMoved(relativeFromPosition, relativeToPosition, bean) }
     }
 
-    open fun notifyItemRemoved(position: Int, bean: BEAN) {
-        notifyItemRemoved(position, 1, bean)
+    open fun notifyItemRemoved(relativePosition: Int, bean: BEAN) {
+        notifyItemRemoved(relativePosition, 1, bean)
     }
 
-    open fun notifyItemRemoved(positionStart: Int, itemCount: Int, bean: BEAN) {
-        observers.forEach { it.notifyItemRemoved(positionStart, itemCount, bean) }
+    open fun notifyItemRemoved(relativePositionStart: Int, itemCount: Int, bean: BEAN) {
+        observers.forEach { it.notifyItemRemoved(relativePositionStart, itemCount, bean) }
     }
 
     /**
@@ -213,9 +213,6 @@ abstract class BaseContainerItemAdapter<BEAN : IContainerBean> {
             listener?.let { state = state or it.onLongClick(view) }
             return state
         }
-
-        override fun onItemClick(view: View, relativePosition: Int) {
-        }
     }
 
     protected fun setItemViewTag(view: View, holder: BaseViewHolder<*>, clickTag: String) {
@@ -245,10 +242,10 @@ abstract class BaseContainerItemAdapter<BEAN : IContainerBean> {
     open val containerAdapter: BaseContainerAdapter<*>
         get() = _containerAdapter ?: throw NullPointerException("只有在addAdapter后才可调用")
 
-    open fun getSpanSize(currentBean: BEAN, position: Int) = 1
+    open fun getSpanSize(currentBean: BEAN, relativePosition: Int) = 1
 
     /**
-     * @param position 相对的position
+     * @param relativePosition 相对的position
      * @return 不能超出范围, 超出就会被当成其他adapter的type
      *         当超出范围时会显式抛出异常
      */
@@ -256,7 +253,7 @@ abstract class BaseContainerItemAdapter<BEAN : IContainerBean> {
         from = BaseContainerAdapter.TYPE_MIN.toLong(),
         to = BaseContainerAdapter.TYPE_MAX.toLong()
     )
-    open fun getItemViewType(currentBean: BEAN, position: Int) = 0
+    open fun getItemViewType(currentBean: BEAN, relativePosition: Int) = 0
 
     abstract fun getItemCount(currentBean: BEAN): Int
 

@@ -55,7 +55,7 @@ class BaseContainerAdapter<BEAN : IContainerBean> @JvmOverloads constructor(list
         const val TYPE_MIN = -100_000
 
         /**
-         * 内部返回的type永远>=[TYPE_MIN]，所以不会和adapter重复
+         * 内部返回的type永远>0，所以不会和adapter重复
          */
         const val TYPE_HEADER = TYPE_MIN - 1
         const val TYPE_FOOTER = TYPE_MIN - 2
@@ -167,7 +167,7 @@ class BaseContainerAdapter<BEAN : IContainerBean> @JvmOverloads constructor(list
             }
             else -> {
                 adaptersManager.getAdapter(viewType / TYPE_MINUS)
-                    .createViewHolder(parent, viewType % TYPE_MINUS)
+                    .createViewHolder(parent, viewType % TYPE_MINUS - TYPE_MAX)
             }
         }
     }
@@ -220,12 +220,12 @@ class BaseContainerAdapter<BEAN : IContainerBean> @JvmOverloads constructor(list
         val itemAdapter = info.itemAdapter.castSuperAdapter()
         val itemType =
             itemAdapter.getItemViewType(list[info.absListPosition], info.itemRelativePosition)
-        if (itemType < TYPE_MIN || itemType >= TYPE_MAX) {
+        if (itemType <= TYPE_MIN || itemType >= TYPE_MAX) {
             throw RuntimeException("你adapter（" + itemAdapter.javaClass + "）的type必须在" + TYPE_MIN + "~" + TYPE_MAX + "之间，type：" + itemType)
         }
         //根据mItemAdapters的position返回type，取的时候比较方便
-        //此处返回的type>=TYPE_MIN
-        return adaptersManager.getPosition(itemAdapter.javaClass) * TYPE_MINUS + itemType
+        //此处返回的type>0
+        return adaptersManager.getPosition(itemAdapter.javaClass) * TYPE_MINUS + itemType + TYPE_MAX
     }
 
     override fun getItemCount(): Int {

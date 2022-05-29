@@ -51,14 +51,12 @@ interface OnItemClickListener<BEAN : IContainerBean> : IItemClick {
      *
      * @param relativePosition 属于该adapter相对的position
      */
-    override fun onItemClick(view: View, relativePosition: Int)
+    override fun onItemClick(view: View, relativePosition: Int) {}
 
     /**
      * item被长按时
      */
-    override fun onItemLongClick(view: View, relativePosition: Int): Boolean {
-        return false
-    }
+    override fun onItemLongClick(view: View, relativePosition: Int) = false
 
     override fun onItemViewClickWithTag(view: View, relativePosition: Int, tag: String) {
         super.onItemViewClickWithTag(view, relativePosition, tag)

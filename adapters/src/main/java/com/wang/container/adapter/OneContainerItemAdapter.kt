@@ -35,7 +35,7 @@ abstract class OneContainerItemAdapter<VB : ViewBinding, BEAN : IContainerBean> 
     /**
      * 仅一条数据，不允许重写
      */
-    final override fun getItemViewType(currentBean: BEAN, position: Int) = 0
+    final override fun getItemViewType(currentBean: BEAN, relativePosition: Int) = 0
     final override fun getItemCount(currentBean: BEAN) = 1
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

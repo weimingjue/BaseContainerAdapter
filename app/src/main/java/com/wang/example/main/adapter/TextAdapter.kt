@@ -1,13 +1,12 @@
-package com.wang.example.msg.adapter
+package com.wang.example.main.adapter
 
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.viewbinding.ViewBinding
 import com.wang.container.adapter.OneContainerItemAdapter
-import com.wang.container.bean.ItemAdapterPositionInfo
 import com.wang.container.holder.BaseViewHolder
-import com.wang.example.msg.bean.TextBean
+import com.wang.example.main.bean.TextBean
 import com.wang.example.utils.toast
 
 class TextAdapter : OneContainerItemAdapter<ViewBinding, TextBean>() {
@@ -24,7 +23,7 @@ class TextAdapter : OneContainerItemAdapter<ViewBinding, TextBean>() {
     ) {
         val tv: TextView = holder.itemView as TextView
         var text = "这是文字：" + currentBean.textInfo.text
-        val info: ItemAdapterPositionInfo = getCurrentPositionInfo(currentBean)
+        val info = getCurrentPositionInfo(currentBean)
         if (info.isFirst) {
             text += "，整个列表第一个"
         }

@@ -1,13 +1,12 @@
-package com.wang.example.msg.adapter
+package com.wang.example.main.adapter
 
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.viewbinding.ViewBinding
 import com.wang.container.adapter.OneContainerItemAdapter
-import com.wang.container.bean.ItemAdapterPositionInfo
 import com.wang.container.holder.BaseViewHolder
-import com.wang.example.msg.bean.OrderBean
+import com.wang.example.main.bean.OrderBean
 import com.wang.example.utils.toast
 
 class PaySuccessOrderAdapter : OneContainerItemAdapter<ViewBinding, OrderBean>() {
@@ -26,7 +25,7 @@ class PaySuccessOrderAdapter : OneContainerItemAdapter<ViewBinding, OrderBean>()
         var text =
             ("支付成功，订单号：" + currentBean.orderInfo.orderNo + "，订单名称" + currentBean.orderInfo.orderName
                     + "，物流：" + currentBean.orderInfo.otherOrderData.emsNo)
-        val info: ItemAdapterPositionInfo = getCurrentPositionInfo(currentBean)
+        val info = getCurrentPositionInfo(currentBean)
         if (info.isFirst) {
             text += "，整个列表第一个"
         }

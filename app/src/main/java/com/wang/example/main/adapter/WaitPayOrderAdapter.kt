@@ -1,9 +1,9 @@
-package com.wang.example.msg.adapter
+package com.wang.example.main.adapter
 
 import com.wang.container.adapter.OneContainerItemAdapter
 import com.wang.container.holder.BaseViewHolder
 import com.wang.example.databinding.AdapterMsgWaitPayOrderBinding
-import com.wang.example.msg.bean.OrderBean
+import com.wang.example.main.bean.OrderBean
 import com.wang.example.utils.toast
 
 class WaitPayOrderAdapter : OneContainerItemAdapter<AdapterMsgWaitPayOrderBinding, OrderBean>() {

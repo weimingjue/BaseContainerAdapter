@@ -1,4 +1,4 @@
-package com.wang.example.msg.adapter
+package com.wang.example.main.adapter
 
 import android.view.ViewGroup
 import android.widget.ImageView
@@ -7,7 +7,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.viewbinding.ViewBinding
 import com.wang.container.adapter.OneContainerItemAdapter
 import com.wang.container.holder.BaseViewHolder
-import com.wang.example.msg.bean.ImgBean
+import com.wang.example.main.bean.ImgBean
 import com.wang.example.utils.toast
 
 class ImgAdapter : OneContainerItemAdapter<ViewBinding, ImgBean>() {

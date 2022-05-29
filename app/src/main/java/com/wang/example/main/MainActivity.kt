@@ -1,4 +1,4 @@
-package com.wang.example
+package com.wang.example.main
 
 import android.annotation.SuppressLint
 import android.content.Intent
@@ -11,30 +11,31 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.wang.container.BaseContainerAdapter
-import com.wang.example.msg.adapter.*
-import com.wang.example.msg.bean.BaseMsgBean
-import com.wang.example.msg.bean.BaseMsgBean.Companion.formatListData
-import com.wang.example.msg.bean.TestData.createMsgList
+import com.wang.example.R
+import com.wang.example.main.adapter.*
+import com.wang.example.main.bean.BaseMsgBean
+import com.wang.example.main.bean.TestData
+import com.wang.example.two.TwoActivity
 import com.wang.example.utils.toast
 
 class MainActivity : AppCompatActivity() {
-    private var mRv: RecyclerView? = null
-    private var mBaseAdapter: BaseContainerAdapter<*>? = null
+    private var rv: RecyclerView? = null
+    private var baseAdapter: BaseContainerAdapter<*>? = null
 
     @SuppressLint("NotifyDataSetChanged")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         findViewById<View>(R.id.tv_msg).setOnClickListener { createMsg() }
-        findViewById<View>(R.id.tv_other).setOnClickListener { "暂时没精力写".toast() }
+        findViewById<View>(R.id.tv_other).setOnClickListener { startActivity(TwoActivity::class.java) }
         findViewById<View>(R.id.tv_reverse).setOnClickListener {
-            mBaseAdapter?.let {
+            baseAdapter?.let {
                 it.list.reverse()
                 it.notifyDataSetChanged()
             }
         }
         findViewById<View>(R.id.tv_delete).setOnClickListener { _ ->
-            mBaseAdapter?.let { it ->
+            baseAdapter?.let { it ->
                 val random = (Math.random() * it.listSize().coerceAtMost(5)).toInt()
                 if (random < it.listSize()) {
                     it.list.removeAt(random)
@@ -48,13 +49,13 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
-        mRv = findViewById(R.id.rv_main)
-        mRv?.layoutManager = LinearLayoutManager(this)
+        rv = findViewById(R.id.rv_main)
+        rv?.layoutManager = LinearLayoutManager(this)
     }
 
     private fun createMsg() {
-        val baseAdapter = BaseContainerAdapter<BaseMsgBean>()
-        baseAdapter.addAdapter(
+        val ba = BaseContainerAdapter<BaseMsgBean>()
+        ba.addAdapter(
             TextAdapter(), ImgAdapter(), WaitPayOrderAdapter(),
             PaySuccessOrderAdapter(), UnsupportedAdapter()
         )
@@ -64,21 +65,21 @@ class MainActivity : AppCompatActivity() {
         headerView.text = "这是header"
         headerView.gravity = Gravity.CENTER
         headerView.setPadding(50, 50, 50, 50)
-        baseAdapter.headerView = headerView
-        baseAdapter.setFooterView(this, R.layout.adapter_main_footer)
-        baseAdapter.footerView?.setOnClickListener { v: View? -> "你点击了footer".toast() }
-        val list = createMsgList() //模拟请求数据
-        val newList = formatListData(list) //格式化数据
-        baseAdapter.setListAndNotifyDataSetChanged(newList)
+        ba.headerView = headerView
+        ba.setFooterView(this, R.layout.adapter_main_footer)
+        ba.footerView?.setOnClickListener { _ -> "你点击了footer".toast() }
+        val list = TestData.createMsgList() //模拟请求数据
+        val newList = BaseMsgBean.formatListData(list) //格式化数据
+        ba.setListAndNotifyDataSetChanged(newList)
 
         //和子adapter的事件都调用会触发，注意自己的逻辑别和子adapter重复
-        baseAdapter.setOnItemClickListener { _, _, _, vh, _, _ ->
+        ba.setOnItemClickListener { _, _, _, vh, _, _ ->
             val absPosition = vh.commonPosition
             val listPosition = vh.listPosition
-            //                absPosition = baseAdapter.getAbsPosition(getCurrentBean(view), position);//一个效果
+            //                absPosition = baseAdapter.getAbsPosition(currentBean, relativePosition);//一个效果
             Log.d(TAG, "全局点击事件，绝对位置: $absPosition，list的position：$listPosition")
         }
-        baseAdapter.setOnItemViewLongClickListenerWithTag { _, _, _, vh, _, _, tag ->
+        ba.setOnItemViewLongClickListenerWithTag { _, _, _, vh, _, _, tag ->
             when (tag) {
                 WaitPayOrderAdapter.TAG_CLICK_STATE -> {
                     "你长按了绝对位置：${vh.commonPosition}里的按钮".toast()
@@ -86,8 +87,8 @@ class MainActivity : AppCompatActivity() {
             }
             true
         }
-        mRv?.adapter = baseAdapter
-        mBaseAdapter = baseAdapter
+        rv?.adapter = ba
+        baseAdapter = ba
     }
 
     fun startActivity(c: Class<*>) {

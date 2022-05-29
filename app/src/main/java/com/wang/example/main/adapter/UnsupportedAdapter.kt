@@ -1,4 +1,4 @@
-package com.wang.example.msg.adapter
+package com.wang.example.main.adapter
 
 import android.view.View
 import android.view.ViewGroup
@@ -6,10 +6,9 @@ import android.widget.TextView
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.viewbinding.ViewBinding
 import com.wang.container.adapter.OneContainerItemAdapter
-import com.wang.container.bean.ItemAdapterPositionInfo
 import com.wang.container.holder.BaseViewHolder
 import com.wang.container.interfaces.OnItemClickListener
-import com.wang.example.msg.bean.BaseMsgBean
+import com.wang.example.main.bean.BaseMsgBean
 import com.wang.example.utils.toast
 
 class UnsupportedAdapter : OneContainerItemAdapter<ViewBinding, BaseMsgBean>() {
@@ -26,7 +25,7 @@ class UnsupportedAdapter : OneContainerItemAdapter<ViewBinding, BaseMsgBean>() {
     ) {
         val tv: TextView = holder.itemView as TextView
         var text = "这是新版本的消息类型"
-        val info: ItemAdapterPositionInfo = getCurrentPositionInfo(currentBean)
+        val info = getCurrentPositionInfo(currentBean)
         if (info.isFirst) {
             text += "，整个列表第一个"
         }

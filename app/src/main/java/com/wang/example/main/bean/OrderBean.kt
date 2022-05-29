@@ -1,12 +1,12 @@
-package com.wang.example.msg.bean
+package com.wang.example.main.bean
 
 import com.google.gson.Gson
 import com.wang.container.adapter.BaseContainerItemAdapter
-import com.wang.example.msg.adapter.PaySuccessOrderAdapter
-import com.wang.example.msg.adapter.WaitPayOrderAdapter
+import com.wang.example.main.adapter.PaySuccessOrderAdapter
+import com.wang.example.main.adapter.WaitPayOrderAdapter
 
 class OrderBean(oldBean: BaseMsgBean) : BaseMsgBean(oldBean) {
-    var orderInfo: OrderDataEntity
+    val orderInfo: OrderDataEntity = Gson().fromJson(oldBean.data, OrderDataEntity::class.java)
 
     data class OrderDataEntity(
         val orderType: Int = 0, //1未支付，2已支付
@@ -23,9 +23,5 @@ class OrderBean(oldBean: BaseMsgBean) : BaseMsgBean(oldBean) {
             2 -> return PaySuccessOrderAdapter::class.java
         }
         return super.getBindAdapterClass()
-    }
-
-    init {
-        orderInfo = Gson().fromJson(oldBean.data, OrderDataEntity::class.java)
     }
 }

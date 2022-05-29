@@ -160,36 +160,27 @@ class HomeGoodsAdapter : BaseContainerItemAdapter<HomeGoodsBean>() {
 ```
 想知道在整个RecyclerView的状态？也很简单
 ```
-public class TextAdapter extends BaseContainerItemAdapter<BaseViewHolder, TextBean> {
-
-    @Override
-    protected void onBindViewHolder(@NonNull BaseViewHolder holder, int position) {
-        ItemAdapterPositionInfo info = getCurrentPositionInfo();//详见ItemAdapterPositionInfo类
-        int absState = info.mAbsState;
-        if (info.isFirst()) {
-            text += "，整个列表第一个";
+class TextAdapter : OneContainerItemAdapter<ViewBinding, TextBean>() {
+    override fun onBindChildViewHolder(holder: BaseViewHolder<ViewBinding>, currentBean: TextBean) {
+        val tv: TextView = holder.itemView as TextView
+        var text = "这是文字：" + currentBean.textInfo.text
+        val info = getCurrentPositionInfo(currentBean)
+        if (info.isFirst) {
+            text += "，整个列表第一个"
         }
-        if (info.isLast()) {
-            text += "，整个列表最后一个";
+        if (info.isLast) {
+            text += "，整个列表最后一个"
         }
+        tv.text = text
     }
 }
-//考虑到性能问题只能在{@link #bindViewHolder}{@link #getItemViewType}{@link #getSpanSize}三个地方使用
-//
-//当然也可以主动获取了（这个操作会遍历2遍数据，千条数据还是可以随便高频调用的）
-ItemAdapterPositionInfo info = getContainerAdapter().getItemAdapterPositionInfo(getCurrentBean(), position);
 ```
 
 ### 版本变更
-**3.0.3以后方法变更：**
-```
-OnItemClickListener.getCurrentBean()>OnItemClickListener.getCurrentBean(view)（view为回调的view）
-OnItemClickListener.getCurrentViewHolder()>OnItemClickListener.getViewHolder(view)
-```
-**3.1.1升级请注意：**
-
-由于getCurrentBean可能会被错误的滥用，所以错误使用时（延时调用或其他乱用）会抛出NullPointerException，升级版本时请自行重新测试一遍
-
+请谨慎将DataBinding调整为ViewBinding，当然调整方式也很粗暴：
+* 升级版本
+* 解决所有报错
+* 去掉所有xml的ViewBinding逻辑，改为代码调用
 ### 普通Adapter见
  [一个极简化的adapter](https://github.com/weimingjue/BaseAdapter)
 ```
@@ -211,8 +202,7 @@ allprojects {
 }
 ```
 AndroidX导入：
-`implementation（或api） 'com.github.weimingjue:BaseContainerAdapter:3.2.0'`
+`implementation（或api） 'com.github.weimingjue:BaseContainerAdapter:0.9.3'`
 
 混淆要求：
-加 -keep class * extends androidx.databinding.ViewBinding 可能会快一点
-不加也没啥影响
+使用OneContainerItemAdapter需要忽略 -keep class * extends androidx.viewbinding.ViewBinding

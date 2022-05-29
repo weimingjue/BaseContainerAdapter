@@ -60,6 +60,7 @@ class BaseListAdapterHelper<BEAN>(val adapter: IListAdapter<*, *, *>, dataList: 
                 }
             } //else相等忽略
         }
+
     var footerView: View? = null
         set(value) {
             val oldFooterView = field //旧view

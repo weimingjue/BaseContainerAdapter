@@ -42,7 +42,7 @@ interface IContainerObserver {
     fun notifyItemRemoved(relativePositionStart: Int, itemCount: Int, bean: IContainerBean)
 
     /**
-     * 当条目点击时调用
+     * 当条目点击时调用，所有的回调都会分发
      */
     fun dispatchItemClicked(view: View)
 

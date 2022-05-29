@@ -20,8 +20,9 @@ interface IAdapter<LISTENER : IItemClick> {
 
     /**
      * 给view设置点击事件到[setOnItemClickListener]中
+     * 也可自行设置点击事件，然后手动调用分发[dispatchItemViewClickWithTag]、[dispatchItemViewLongClickWithTag]
      *
-     * 点击回调见[setOnItemClickListener]、[OnItemClickListener]
+     * 点击回调见[setOnItemClickListener]、setOnItemViewClickListenerWithTag、setOnItemViewLongClickListenerWithTag
      *
      * @param clickTag 由于id不便辨识和使用，在adapter中声明tag更便于查看和修改
      */
@@ -52,7 +53,8 @@ interface IAdapter<LISTENER : IItemClick> {
         getOnItemClickListener()?.onLongClick(view)
     }
 
-    private fun setItemViewTag(view: View, holder: BaseViewHolder<*>, clickTag: String) {
+    @CallSuper
+    fun setItemViewTag(view: View, holder: BaseViewHolder<*>, clickTag: String) {
         view.setTag(R.id.tag_view_holder, holder)
         view.setTag(R.id.tag_view_bean, holder.itemView.getTag(R.id.tag_view_bean))
         view.setTag(R.id.tag_view_adapter, this)

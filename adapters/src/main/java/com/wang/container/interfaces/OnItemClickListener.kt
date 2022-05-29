@@ -8,7 +8,7 @@ import com.wang.container.adapter.BaseContainerItemAdapter
 import com.wang.container.bean.IContainerBean
 
 /**
- * 点击、长按、header、footer的回调
+ * 点击、长按的回调
  */
 interface OnItemClickListener<BEAN : IContainerBean> : IItemClick {
     /**
@@ -18,8 +18,8 @@ interface OnItemClickListener<BEAN : IContainerBean> : IItemClick {
     override fun getViewPosition(view: View): Int {
         val holder = getViewHolder(view)
         val absPosition = holder.commonPosition
-        val info = getContainerAdapter(view).getItemAdapterPositionInfo(absPosition)
-        return info.itemPosition
+        val info = getContainerAdapter(view).getCacheItemPositionInfo(absPosition, true)
+        return info.itemRelativePosition
     }
 
     /**

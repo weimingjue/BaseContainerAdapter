@@ -210,9 +210,7 @@ abstract class BaseContainerItemAdapter<BEAN : IContainerBean> {
                 state = state or it.dispatchItemLongClicked(view)
             }
             state = state or super.onLongClick(view)
-            listener?.let {
-                state = state or it.onLongClick(view)
-            }
+            listener?.let { state = state or it.onLongClick(view) }
             return state
         }
 
@@ -251,7 +249,8 @@ abstract class BaseContainerItemAdapter<BEAN : IContainerBean> {
 
     /**
      * @param position 相对的position
-     * @return 不能超出范围, 超出就会被当成其他adapter的type(如果真的不够用可以自行下载修改min和max就行了)
+     * @return 不能超出范围, 超出就会被当成其他adapter的type
+     *         当超出范围时会显式抛出异常
      */
     @IntRange(
         from = BaseContainerAdapter.TYPE_MIN.toLong(),
@@ -281,8 +280,9 @@ abstract class BaseContainerItemAdapter<BEAN : IContainerBean> {
 
     /**
      * 给view设置点击事件到[setOnItemClickListener]中
+     * 也可自行设置点击事件，然后手动调用分发[dispatchItemViewClickWithTag]、[dispatchItemViewLongClickWithTag]
      *
-     * 点击回调见[setOnItemClickListener]、[OnItemClickListener]
+     * 点击回调见[setOnItemClickListener]、[setOnItemViewClickListenerWithTag]、[setOnItemViewLongClickListenerWithTag]
      *
      * @param clickTag 由于id不便辨识和使用，在adapter中声明tag更便于查看和修改
      */

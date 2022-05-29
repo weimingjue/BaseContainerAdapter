@@ -155,7 +155,7 @@ class BaseContainerAdapter<BEAN : IContainerBean> @JvmOverloads constructor(list
 
             fun onAdapterChanged() {
                 lastCachePositionInfo = null
-                internalLastCachePositionInfo?.containerListIndex = -999
+                internalLastCachePositionInfo?.absPosition = -999
             }
         })
     }

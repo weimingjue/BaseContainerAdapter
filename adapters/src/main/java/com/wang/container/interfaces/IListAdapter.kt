@@ -132,7 +132,14 @@ interface IListAdapter<BEANS, DB : ViewBinding, LISTENER : IItemClick> : IAdapte
      * 刷新list的position，解决[notifyItemChanged]的position问题
      */
     fun notifyListItemChanged(listPosition: Int) {
+        if (listPosition < 0 || listPosition >= list.size) {
+            return
+        }
         notifyItemChanged(listPosition + headerViewCount)
+    }
+
+    fun notifyListItemChanged(bean: BEANS) {
+        notifyListItemChanged(list.indexOf(bean))
     }
 
     fun notifyListItemRangeChanged(listPositionStart: Int, itemCount: Int) {

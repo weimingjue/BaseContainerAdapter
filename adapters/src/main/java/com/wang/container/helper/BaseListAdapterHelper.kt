@@ -12,7 +12,7 @@ import com.wang.container.utils.ContainerUtils
 import com.wang.container.utils.MATCH_PARENT
 import com.wang.container.utils.WRAP_CONTENT
 
-class BaseListAdapterHelper<BEAN>(val adapter: IListAdapter<*, *, *>, dataList: List<BEAN>?) {
+open class BaseListAdapterHelper<BEAN>(val adapter: IListAdapter<*, *, *>, dataList: List<BEAN>?) {
     val list: MutableList<BEAN> = if (dataList == null) ArrayList() else ArrayList(dataList)
 
     fun onCreateHeaderFooterViewHolder(parent: ViewGroup): BaseViewHolder<*> {

@@ -433,7 +433,7 @@ class BaseContainerAdapter<BEAN : IContainerBean> @JvmOverloads constructor(list
         return ArrayList(adaptersManager.list)
     }
 
-    override val list = listHelper.list
+    override val list get() = listHelper.list
 
     private fun getSuggestDefClickListener() =
         onItemClickListener as? DefOnItemClickListener<BEAN> ?: DefOnItemClickListener()
@@ -607,4 +607,11 @@ class BaseContainerAdapter<BEAN : IContainerBean> @JvmOverloads constructor(list
         set(value) {
             listHelper.footerView = value
         }
+
+    override fun notifyListItemChanged(bean: BEAN) {
+        val absPosition = getAbsPosition(bean, 0)
+        val itemAdapter =
+            adaptersManager.getAdapter(bean.getBindAdapterClass()).castSuperAdapter()
+        notifyListItemRangeChanged(absPosition, itemAdapter.getItemCount(bean))
+    }
 }

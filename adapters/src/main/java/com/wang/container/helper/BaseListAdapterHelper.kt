@@ -5,14 +5,20 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.recyclerview.widget.RecyclerView
+import androidx.viewbinding.ViewBinding
 import com.wang.container.databinding.CItemFlBinding
 import com.wang.container.holder.BaseViewHolder
+import com.wang.container.interfaces.IItemClick
 import com.wang.container.interfaces.IListAdapter
 import com.wang.container.utils.ContainerUtils
 import com.wang.container.utils.MATCH_PARENT
 import com.wang.container.utils.WRAP_CONTENT
 
-open class BaseListAdapterHelper<BEAN>(val adapter: IListAdapter<*, *, *>, dataList: List<BEAN>?) {
+open class BaseListAdapterHelper<BEAN>(
+    adapter: IListAdapter<BEAN, *, *>,
+    dataList: List<BEAN>?
+) {
+    val adapter = adapter as IListAdapter<BEAN, ViewBinding, IItemClick>
     val list: MutableList<BEAN> = if (dataList == null) ArrayList() else ArrayList(dataList)
 
     fun onCreateHeaderFooterViewHolder(parent: ViewGroup): BaseViewHolder<*> {

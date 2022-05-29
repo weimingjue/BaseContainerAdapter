@@ -1,7 +1,9 @@
 package com.wang.container.holder
 
 import android.content.Context
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import androidx.viewbinding.ViewBinding
 import com.wang.container.R
@@ -11,9 +13,13 @@ import com.wang.container.interfaces.IListAdapter
  * 所有ViewHolder的基类
  */
 class BaseViewHolder<VB : ViewBinding>(item: View) : ViewHolder(item) {
+
     constructor(vb: VB) : this(vb.root) {
         _vb = vb
     }
+
+    constructor(parent: ViewGroup, layoutId: Int) :
+            this(LayoutInflater.from(parent.context).inflate(layoutId, parent, false))
 
     private var _vb: VB? = null
 

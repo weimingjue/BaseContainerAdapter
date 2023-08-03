@@ -130,10 +130,16 @@ interface IListAdapter<BEANS, DB : ViewBinding, LISTENER : IItemClick> : IAdapte
 
     /**
      * 刷新list的position，解决[notifyItemChanged]的position问题
+     * @param newBean 新数据
+     *                null：你已经自己更新过了，这里只需要调用更新数据
+     *                notnull：更新该条数据
      */
-    fun notifyListItemChanged(listPosition: Int) {
+    fun notifyListItemChanged(listPosition: Int, newBean: BEANS? = null) {
         if (listPosition < 0 || listPosition >= list.size) {
             return
+        }
+        if (newBean != null) {
+            list[listPosition] = newBean
         }
         notifyItemChanged(listPosition + headerViewCount)
     }
@@ -146,7 +152,15 @@ interface IListAdapter<BEANS, DB : ViewBinding, LISTENER : IItemClick> : IAdapte
         notifyItemRangeChanged(listPositionStart + headerViewCount, itemCount)
     }
 
-    fun notifyListItemInserted(listPosition: Int) {
+    /**
+     * @param insertBean 要插入的数据
+     *                   null：你已经自己插入数据了，这里只需要调用更新数据
+     *                   notnull：插入该条数据
+     */
+    fun notifyListItemInserted(listPosition: Int, insertBean: BEANS? = null) {
+        if (insertBean != null) {
+            list.add(listPosition, insertBean)
+        }
         notifyItemInserted(listPosition + headerViewCount)
     }
 
@@ -158,7 +172,16 @@ interface IListAdapter<BEANS, DB : ViewBinding, LISTENER : IItemClick> : IAdapte
         notifyItemMoved(listFromPosition + headerViewCount, listToPosition + headerViewCount)
     }
 
-    fun notifyListItemRemoved(listPosition: Int) {
+    /**
+     * @param isRemoData 是否删除该数据
+     *                false：你已经自己删除过了，这里只需要调用更新数据
+     *                true：删除该条数据
+     */
+    fun notifyListItemRemoved(listPosition: Int, isRemoData: Boolean = false) {
+        if (listPosition<0||listPosition>)
+        if (isRemoData) {
+            list.removeAt(listPosition)
+        }
         notifyItemRemoved(listPosition + headerViewCount)
     }
 

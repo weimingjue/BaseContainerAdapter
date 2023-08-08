@@ -178,8 +178,10 @@ interface IListAdapter<BEANS, DB : ViewBinding, LISTENER : IItemClick> : IAdapte
      *                true：删除该条数据
      */
     fun notifyListItemRemoved(listPosition: Int, isRemoData: Boolean = false) {
-        if (listPosition<0||listPosition>)
-        if (isRemoData) {
+        if (listPosition < 0) {
+            return
+        }
+        if (isRemoData && listPosition < list.size) {
             list.removeAt(listPosition)
         }
         notifyItemRemoved(listPosition + headerViewCount)

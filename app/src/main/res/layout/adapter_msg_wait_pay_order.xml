@@ -1,47 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="#eee"
+    android:orientation="vertical"
+    android:padding="10dp">
 
-    <data>
-
-        <variable
-            name="bean"
-            type="com.wang.example.msg.bean.OrderBean" />
-
-        <variable
-            name="adapter"
-            type="com.wang.example.msg.adapter.WaitPayOrderAdapter" />
-    </data>
-
-    <LinearLayout
-        android:layout_width="match_parent"
+    <TextView
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="#eee"
-        android:orientation="vertical"
-        android:padding="10dp">
+        android:text="待支付" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="待支付" />
+    <TextView
+        android:id="@+id/tvOrderNo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        tools:text="订单号" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@{`订单号：`+bean.orderInfo.orderNo}"
-            tools:text="订单号" />
+    <TextView
+        android:id="@+id/tvOrderName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        tools:text="订单名称" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@{`订单名称：`+bean.orderInfo.orderName}"
-            tools:text="订单名称" />
-
-        <Button
-            android:id="@+id/bt_state"
-            setItemViewClick="@{adapter}"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            tools:text="列表状态" />
-    </LinearLayout>
-</layout>
+    <Button
+        android:id="@+id/bt_state"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        tools:text="列表状态" />
+</LinearLayout>

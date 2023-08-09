@@ -4,25 +4,27 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.CallSuper
 import androidx.recyclerview.widget.RecyclerView
-import com.wang.container.R
-import com.wang.container.holder.BaseViewHolder
+import com.sea.base.adapter.BaseViewHolder
+import com.sea.im.base.R
 
 /**
  * 所有adapter的接口
  */
 interface IAdapter<LISTENER : IItemClick> {
-    fun setOnItemClickListener(listener: LISTENER?)
-    fun getOnItemClickListener(): LISTENER?
+    /**
+     * 主要内部使用，建议使用子类的具体实现
+     */
+    var abstractClickListener: LISTENER?
     fun getItemCount(): Int
     fun getItemViewType(position: Int) = 0
     fun createViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder<*>
     fun bindViewHolder(holder: BaseViewHolder<*>, position: Int)
 
     /**
-     * 给view设置点击事件到[setOnItemClickListener]中
+     * 给view设置点击事件到setOnItemClickListener中
      * 也可自行设置点击事件，然后手动调用分发[dispatchItemViewClickWithTag]、[dispatchItemViewLongClickWithTag]
      *
-     * 点击回调见[setOnItemClickListener]、setOnItemViewClickListenerWithTag、setOnItemViewLongClickListenerWithTag
+     * 点击回调见setOnItemClickListener、setOnItemViewClickListenerWithTag、setOnItemViewLongClickListenerWithTag
      *
      * @param clickTag 由于id不便辨识和使用，在adapter中声明tag更便于查看和修改
      */
@@ -30,8 +32,8 @@ interface IAdapter<LISTENER : IItemClick> {
     fun addItemViewClickWithTag(view: View, holder: BaseViewHolder<*>, clickTag: String) {
         setItemViewTag(view, holder, clickTag)
         if (view !is RecyclerView) {//RecycleView暂不支持点击事件，如有自定义请直接调用下面2个方法
-            view.setOnClickListener(getOnItemClickListener())
-            view.setOnLongClickListener(getOnItemClickListener())
+            view.setOnClickListener(abstractClickListener)
+            view.setOnLongClickListener(abstractClickListener)
         }
     }
 
@@ -41,7 +43,7 @@ interface IAdapter<LISTENER : IItemClick> {
     @CallSuper
     fun dispatchItemViewClickWithTag(view: View, holder: BaseViewHolder<*>, clickTag: String) {
         setItemViewTag(view, holder, clickTag)
-        getOnItemClickListener()?.onClick(view)
+        abstractClickListener?.onClick(view)
     }
 
     /**
@@ -50,7 +52,7 @@ interface IAdapter<LISTENER : IItemClick> {
     @CallSuper
     fun dispatchItemViewLongClickWithTag(view: View, holder: BaseViewHolder<*>, clickTag: String) {
         setItemViewTag(view, holder, clickTag)
-        getOnItemClickListener()?.onLongClick(view)
+        abstractClickListener?.onLongClick(view)
     }
 
     @CallSuper

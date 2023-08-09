@@ -7,7 +7,7 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.annotation.LayoutRes
 import androidx.viewbinding.ViewBinding
-import com.wang.container.holder.BaseViewHolder
+import com.sea.base.adapter.BaseViewHolder
 
 /**
  * 所有list的adapter的接口

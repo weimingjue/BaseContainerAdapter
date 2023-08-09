@@ -2,9 +2,10 @@ package com.wang.container.adapter
 
 import android.view.ViewGroup
 import androidx.viewbinding.ViewBinding
+import com.sea.base.adapter.BaseViewHolder
+import com.sea.base.ext.view.layoutInflater
+import com.sea.base.utils.ViewBindingHelper
 import com.wang.container.bean.IContainerBean
-import com.wang.container.holder.BaseViewHolder
-import com.wang.container.utils.GenericUtils
 
 /**
  * 一个list的item仅对应一条数据，如：聊天
@@ -47,12 +48,7 @@ abstract class OneContainerItemAdapter<VB : ViewBinding, BEAN : IContainerBean> 
 
     protected open fun onCreateChildViewHolder(parent: ViewGroup): BaseViewHolder<VB> {
         return BaseViewHolder(
-            GenericUtils.getGenericVB(
-                parent.context,
-                OneContainerItemAdapter::class.java,
-                javaClass,
-                parent
-            ) as VB
+            ViewBindingHelper.getViewBindingInstance<VB>(javaClass, parent.layoutInflater, parent)
         )
     }
 

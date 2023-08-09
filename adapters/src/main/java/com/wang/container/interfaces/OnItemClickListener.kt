@@ -2,8 +2,9 @@ package com.wang.container.interfaces
 
 import android.view.View
 import androidx.annotation.CallSuper
+import com.sea.base.ext.view.adapterLayoutPosition
+import com.sea.im.base.R
 import com.wang.container.BaseContainerAdapter
-import com.wang.container.R
 import com.wang.container.adapter.BaseContainerItemAdapter
 import com.wang.container.bean.IContainerBean
 
@@ -11,13 +12,35 @@ import com.wang.container.bean.IContainerBean
  * 点击、长按的回调
  */
 interface OnItemClickListener<BEAN : IContainerBean> : IItemClick {
+    @CallSuper
+    override fun onClick(view: View) {
+        val tag = getViewClickTag(view)
+        val position = getViewPosition(view)
+        if (tag == null) {
+            onItemClick(view, position)
+        } else {
+            onItemViewClickWithTag(view, position, tag)
+        }
+    }
+
+    @CallSuper
+    override fun onLongClick(view: View): Boolean {
+        val tag = getViewClickTag(view)
+        val position = getViewPosition(view)
+        return if (tag == null) {
+            onItemLongClick(view, position)
+        } else {
+            onItemViewLongClickWithTag(view, position, tag)
+        }
+    }
+
     /**
      * 返回相对的position
      */
     @CallSuper
     override fun getViewPosition(view: View): Int {
         val holder = getViewHolder(view)
-        val absPosition = holder.commonPosition
+        val absPosition = holder.adapterLayoutPosition
         val info = getContainerAdapter(view).getCacheItemPositionInfo(absPosition, true)
         return info.itemRelativePosition
     }
@@ -59,7 +82,6 @@ interface OnItemClickListener<BEAN : IContainerBean> : IItemClick {
     override fun onItemLongClick(view: View, relativePosition: Int) = false
 
     override fun onItemViewClickWithTag(view: View, relativePosition: Int, tag: String) {
-        super.onItemViewClickWithTag(view, relativePosition, tag)
     }
 
     override fun onItemViewLongClickWithTag(
@@ -67,6 +89,6 @@ interface OnItemClickListener<BEAN : IContainerBean> : IItemClick {
         relativePosition: Int,
         tag: String
     ): Boolean {
-        return super.onItemViewLongClickWithTag(view, relativePosition, tag)
+        return false
     }
 }

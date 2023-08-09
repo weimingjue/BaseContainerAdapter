@@ -1,18 +1,16 @@
 package com.wang.container.helper
 
-import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewbinding.ViewBinding
-import com.wang.container.databinding.CItemFlBinding
-import com.wang.container.holder.BaseViewHolder
+import com.sea.base.adapter.BaseViewHolder
+import com.sea.base.ext.view.MATCH_PARENT
+import com.sea.base.ext.view.WRAP_CONTENT
+import com.sea.base.ext.view.getDefLayoutParams
 import com.wang.container.interfaces.IItemClick
 import com.wang.container.interfaces.IListAdapter
-import com.wang.container.utils.ContainerUtils
-import com.wang.container.utils.MATCH_PARENT
-import com.wang.container.utils.WRAP_CONTENT
 
 open class BaseListAdapterHelper<BEAN>(
     adapter: IListAdapter<BEAN, *, *>,
@@ -22,8 +20,9 @@ open class BaseListAdapterHelper<BEAN>(
     val list: MutableList<BEAN> = if (dataList == null) ArrayList() else ArrayList(dataList)
 
     fun onCreateHeaderFooterViewHolder(parent: ViewGroup): BaseViewHolder<*> {
-        val flBinding = CItemFlBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        return BaseViewHolder(flBinding)
+        val fl = FrameLayout(parent.context)
+        fl.layoutParams = parent.getDefLayoutParams().apply { height = MATCH_PARENT }
+        return BaseViewHolder<ViewBinding>(fl)
     }
 
     fun onBindHeaderFooterViewHolder(holder: BaseViewHolder<*>, headerOrFooterView: View) {
@@ -32,8 +31,23 @@ open class BaseListAdapterHelper<BEAN>(
         if (oldParent != fl) {
             oldParent?.removeView(headerOrFooterView)
             fl.removeAllViews()
-            ContainerUtils.syncParamsToChild(fl, headerOrFooterView)
+            syncParamsToChild(fl, headerOrFooterView)
             fl.addView(headerOrFooterView)
+        }
+    }
+
+    /**
+     * 将fl的宽高和child同步
+     */
+    private fun syncParamsToChild(
+        fl: FrameLayout,
+        childView: View
+    ) {
+        val flParams = fl.layoutParams
+        val childParams = childView.layoutParams
+        if (flParams != null && childParams != null) {
+            flParams.width = childParams.width
+            flParams.height = childParams.height
         }
     }
 

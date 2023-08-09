@@ -10,6 +10,8 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.GridLayoutManager.SpanSizeLookup
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewbinding.ViewBinding
+import com.sea.base.adapter.BaseViewHolder
+import com.sea.base.ext.view.getListPosition
 import com.wang.container.BaseContainerAdapter.Companion.TYPE_MAX
 import com.wang.container.BaseContainerAdapter.Companion.TYPE_MIN
 import com.wang.container.adapter.BaseContainerItemAdapter
@@ -17,7 +19,6 @@ import com.wang.container.adapter.OneContainerItemAdapter
 import com.wang.container.bean.IContainerBean
 import com.wang.container.bean.ItemAdapterPositionInfo
 import com.wang.container.helper.BaseListAdapterHelper
-import com.wang.container.holder.BaseViewHolder
 import com.wang.container.interfaces.DefOnItemClickListener
 import com.wang.container.interfaces.IListAdapter
 import com.wang.container.interfaces.OnItemClickListener
@@ -64,7 +65,7 @@ class BaseContainerAdapter<BEAN : IContainerBean> @JvmOverloads constructor(list
 
     private var lastCachePositionInfo: ItemAdapterPositionInfo? = null
     private var internalLastCachePositionInfo: ItemAdapterPositionInfo? = null
-    private var onItemClickListener: OnItemClickListener<BEAN>? = null
+    override var abstractClickListener: OnItemClickListener<BEAN>? = null
     private val adaptersManager = MyAdaptersManager()
     private val childObservers: IContainerObserver = object : IContainerObserver {
         override fun notifyDataSetChanged() {
@@ -111,11 +112,11 @@ class BaseContainerAdapter<BEAN : IContainerBean> @JvmOverloads constructor(list
         }
 
         override fun dispatchItemClicked(view: View) {
-            onItemClickListener?.onClick(view)
+            abstractClickListener?.onClick(view)
         }
 
         override fun dispatchItemLongClicked(view: View): Boolean {
-            return onItemClickListener?.onLongClick(view) ?: false
+            return abstractClickListener?.onLongClick(view) ?: false
         }
     }
     private var recyclerView: RecyclerView? = null
@@ -165,6 +166,7 @@ class BaseContainerAdapter<BEAN : IContainerBean> @JvmOverloads constructor(list
             TYPE_HEADER, TYPE_FOOTER -> {
                 listHelper.onCreateHeaderFooterViewHolder(parent)
             }
+
             else -> {
                 adaptersManager.getAdapter(viewType / TYPE_MINUS)
                     .createViewHolder(parent, viewType % TYPE_MINUS - TYPE_MAX)
@@ -177,9 +179,11 @@ class BaseContainerAdapter<BEAN : IContainerBean> @JvmOverloads constructor(list
             TYPE_HEADER -> {
                 listHelper.onBindHeaderFooterViewHolder(holder, listHelper.headerView!!)
             }
+
             TYPE_FOOTER -> {
                 listHelper.onBindHeaderFooterViewHolder(holder, listHelper.footerView!!)
             }
+
             else -> {
                 val info = getCacheItemPositionInfo(position, true)
                 val itemAdapter = info.itemAdapter.castSuperAdapter()
@@ -436,27 +440,15 @@ class BaseContainerAdapter<BEAN : IContainerBean> @JvmOverloads constructor(list
     override val list get() = listHelper.list
 
     private fun getSuggestDefClickListener() =
-        onItemClickListener as? DefOnItemClickListener<BEAN> ?: DefOnItemClickListener()
-
-    /**
-     * 建议使用[setOnItemClickListener]、[setOnItemLongClickListener]
-     *
-     * 自定义点击效果，包括点击长按等，需要熟悉[OnItemClickListener]类
-     * 这个回调和子adapter的事件回调都会被调用（这里先调，子adapter后调）
-     *
-     * 注意同样逻辑别写重复了
-     * 如果没有收到回调请检查你的adapter有没有对[RecyclerView.ViewHolder.itemView]设置了点击事件
-     *
-     * position为相对position，想获得绝对位置[BaseViewHolder.commonPosition]
-     */
-    override fun setOnItemClickListener(listener: OnItemClickListener<BEAN>?) {
-        onItemClickListener = listener
-    }
+        abstractClickListener as? DefOnItemClickListener<BEAN> ?: DefOnItemClickListener()
 
     /**
      * 点击回调
      *
-     * 注意事项同上
+     * 注意同样逻辑别写重复了
+     * 如果没有收到回调请检查你的adapter有没有对[RecyclerView.ViewHolder.itemView]设置了点击事件
+     *
+     * position为相对position，想获得绝对位置[BaseViewHolder.getListPosition]
      */
     fun setOnItemClickListener(
         clickListener: ((
@@ -468,7 +460,7 @@ class BaseContainerAdapter<BEAN : IContainerBean> @JvmOverloads constructor(list
             containerAdapter: BaseContainerAdapter<*>
         ) -> Unit)?
     ) {
-        setOnItemClickListener(getSuggestDefClickListener().apply { onItemClick = clickListener })
+        abstractClickListener = getSuggestDefClickListener().apply { onItemClick = clickListener }
     }
 
     /**
@@ -486,9 +478,9 @@ class BaseContainerAdapter<BEAN : IContainerBean> @JvmOverloads constructor(list
             containerAdapter: BaseContainerAdapter<*>
         ) -> Boolean)?
     ) {
-        setOnItemClickListener(getSuggestDefClickListener().apply {
+        abstractClickListener = getSuggestDefClickListener().apply {
             onItemLongClick = longClickListener
-        })
+        }
     }
 
     /**
@@ -505,9 +497,7 @@ class BaseContainerAdapter<BEAN : IContainerBean> @JvmOverloads constructor(list
             tag: String
         ) -> Unit)?
     ) {
-        setOnItemClickListener(getSuggestDefClickListener().apply {
-            onItemViewClickWithTag = clickListener
-        })
+        abstractClickListener = getSuggestDefClickListener().apply { onItemViewClickWithTag = clickListener }
     }
 
     /**
@@ -524,12 +514,8 @@ class BaseContainerAdapter<BEAN : IContainerBean> @JvmOverloads constructor(list
             tag: String
         ) -> Boolean)?
     ) {
-        setOnItemClickListener(getSuggestDefClickListener().apply {
-            onItemViewLongClickWithTag = longClickListener
-        })
+        abstractClickListener = getSuggestDefClickListener().apply { onItemViewLongClickWithTag = longClickListener }
     }
-
-    override fun getOnItemClickListener() = onItemClickListener
 
     /**
      * 根据bean对象和adapter的相对位置获取绝对位置

@@ -1,10 +1,10 @@
 package com.wang.container.interfaces
 
 import android.view.View
+import com.sea.base.adapter.BaseViewHolder
 import com.wang.container.BaseContainerAdapter
 import com.wang.container.adapter.BaseContainerItemAdapter
 import com.wang.container.bean.IContainerBean
-import com.wang.container.holder.BaseViewHolder
 
 /**
  * 默认click、long click回调

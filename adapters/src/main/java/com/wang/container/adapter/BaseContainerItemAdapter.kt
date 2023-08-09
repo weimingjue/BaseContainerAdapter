@@ -5,10 +5,10 @@ import android.view.ViewGroup
 import androidx.annotation.IntRange
 import androidx.collection.ArraySet
 import androidx.recyclerview.widget.RecyclerView
+import com.sea.base.adapter.BaseViewHolder
+import com.sea.im.base.R
 import com.wang.container.BaseContainerAdapter
-import com.wang.container.R
 import com.wang.container.bean.IContainerBean
-import com.wang.container.holder.BaseViewHolder
 import com.wang.container.interfaces.DefOnItemClickListener
 import com.wang.container.interfaces.OnItemClickListener
 import com.wang.container.observer.IContainerObserver
